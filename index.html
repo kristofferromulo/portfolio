@@ -428,6 +428,20 @@ body.is-presenting .about-note { font-size: 1.125rem; color: var(--ink); }
 .contact::before { content: ""; position: absolute; z-index: -1; width: 60%; aspect-ratio: 1; right: -12%; top: -30%; border-radius: 50%; background: radial-gradient(circle, var(--cue) 0%, transparent 62%); opacity: .38; filter: blur(30px); animation: drift 14s ease-in-out infinite alternate; }
 .contact .label { color: var(--dark-ink-2); }
 .contact .giant { color: var(--dark-ink); }
+.contact-statement { font-size: clamp(2.1rem, 4.6vw, 4.25rem); font-weight: 500; letter-spacing: -0.05em; line-height: 1.04; color: var(--dark-ink); max-width: 21ch; text-wrap: balance; }
+.contact-proof { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.contact-proof > div { border-top: 2px solid var(--cue); padding-top: 16px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.proof-k { font-family: var(--font-mono); font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--cue); }
+.contact-proof p { color: var(--dark-ink); font-size: 1.125rem; line-height: 1.35; letter-spacing: -0.01em; }
+.proof-ref { display: flex; gap: 14px; margin-top: auto; padding-top: 4px; }
+.proof-ref a { font-family: var(--font-mono); font-size: .75rem; color: var(--dark-ink-2); text-decoration: none; border-bottom: 1px solid var(--dark-line); }
+.proof-ref a:hover { color: var(--dark-ink); border-color: var(--dark-ink); }
+.proof-ref a::after { content: " \2197"; }
+.contact-open { font-size: clamp(1.375rem, 2.4vw, 2rem); font-weight: 500; letter-spacing: -0.03em; line-height: 1.2; color: var(--dark-ink); max-width: 34ch; text-wrap: balance; }
+.contact-open span { color: var(--cue); }
+.contact-open + .contact-sub { margin-top: calc(-1 * clamp(14px, 2vw, 24px)); }
+@media (max-width: 760px) { .contact-proof { grid-template-columns: 1fr; gap: 20px; } }
+.contact-statement .cs-lead { color: var(--dark-ink-2); }
 .contact-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
 .contact-mark { display: block; flex: none; height: clamp(40px, 5.4vw, 76px); width: auto; aspect-ratio: 83.3 / 92.7; color: var(--dark-ink); }
 .contact-sub { color: var(--dark-ink-2); font-size: 1.0625rem; max-width: 46ch; }
@@ -1170,8 +1184,14 @@ body.is-presenting .pm-hint.is-on { display: block; animation: pmHint 5s var(--e
   <!-- ========== CONTACT ========== -->
   <section class="wrap section" id="contact" style="padding-top:0">
     <div class="contact" data-reveal>
-      <div class="contact-top"><span class="label">Contact</span><svg class="contact-mark" viewBox="8.3 3.6 83.3 92.7" aria-hidden="true" focusable="false"><use href="#kris-mark"/></svg></div>
-      <h2 class="giant">Let's talk.</h2>
+      <div class="contact-top"><span class="label">In short</span><svg class="contact-mark" viewBox="8.3 3.6 83.3 92.7" aria-hidden="true" focusable="false"><use href="#kris-mark"/></svg></div>
+      <h2 class="contact-statement"><span class="cs-lead">I'm research-trained and I&nbsp;understand digital experiences,</span> so I can turn evidence into practical improvements.</h2>
+      <div class="contact-proof" data-pm-seq>
+        <div><span class="proof-k">Research-trained</span><p>An award-winning thesis I designed and ran.</p><span class="proof-ref"><a href="#thesis">Case 1</a></span></div>
+        <div><span class="proof-k">Understands digital experiences</span><p>Live sites and funnels I build at Mint.</p><span class="proof-ref"><a href="#prime-audit">Case 2</a><a href="#olynation">Case 3</a></span></div>
+        <div><span class="proof-k">Evidence into improvements</span><p>Fixes that shipped from data and feedback.</p><span class="proof-ref"><a href="#prime-audit">Case 2</a><a href="#olynation">Case 3</a></span></div>
+      </div>
+      <p class="contact-open">I'm still learning, and I'm open to new experiences and new ways of working. <span>Let's talk.</span></p>
       <p class="contact-sub">Email is fastest. Some Mint client work is exclusive to clients; I'm glad to walk through it on a call.</p>
       <div class="email-row">
         <a class="email" id="email-addr" href="mailto:kristoffer.romulo@gmail.com">kristoffer.romulo@gmail.com</a>
@@ -2114,7 +2134,7 @@ body.is-presenting .pm-hint.is-on { display: block; animation: pmHint 5s var(--e
     add('home', g('approach'), 'Approach', 'How I work');
     add('home', g('more'), 'More work', 'Range');
     add('home', g('about'), 'About', 'Background');
-    add('home', g('contact'), 'Close', "Let's talk");
+    add('home', g('contact'), 'Close', 'In short');
     STOPS.forEach(function (st, i) {
       if (!st.el) { st.hasDetail = false; return; }
       st.el.setAttribute('data-stop', i);
