@@ -403,6 +403,8 @@ a.media:hover img, .tcard:hover .media img, .pillar:hover .media img { transform
 /* About */
 .about { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px; align-items: start; }
 .about-main { grid-column: 1 / 7; display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.about-note { padding-left: 16px; border-left: 2px solid var(--line); color: var(--ink-2); font-size: 1rem; line-height: 1.55; }
+body.is-presenting .about-note { font-size: 1.125rem; color: var(--ink); }
 .about-main .lead { font-size: clamp(1.125rem, 1.6vw, 1.375rem); line-height: 1.45; color: var(--ink); letter-spacing: -0.02em; }
 .about-side { grid-column: 8 / 13; min-width: 0; }
 .timeline { background: var(--card); border-radius: var(--r-card); padding: 6px 24px; box-shadow: var(--shadow-1); }
@@ -666,6 +668,110 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
 .stat-panel--sm .stat { font-size: clamp(2.2rem, 3.6vw, 3rem); }
 .sub-row--first { margin-top: 0; }
 .sub-row[id] { scroll-margin-top: 88px; }
+/* ---------- TL;DR ---------- */
+.tldr { display: flex; align-items: flex-start; gap: 14px; padding: 16px 20px; border-radius: 18px; background: var(--card); box-shadow: var(--shadow-1); min-width: 0; }
+.tldr-k { flex: none; margin-top: 2px; padding: 3px 8px; border-radius: 999px; background: var(--cue-soft); color: var(--cue-ink); font-family: var(--font-mono); font-size: .6875rem; letter-spacing: .05em; white-space: nowrap; }
+.tldr-b { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.tldr-t { font-size: 1.0625rem; line-height: 1.45; font-weight: 500; letter-spacing: -0.012em; color: var(--ink); text-wrap: pretty; }
+.tldr-pts { display: flex; flex-wrap: wrap; gap: 6px; }
+.tldr-pts span { padding: 4px 10px; border-radius: 999px; background: var(--surface); font-family: var(--font-mono); font-size: .75rem; line-height: 1.4; color: var(--ink-2); }
+.tldr--home { margin-bottom: 16px; }
+@media (max-width: 640px) { .tldr { flex-direction: column; gap: 10px; } }
+
+/* ---------- Presentation mode ---------- */
+.nav-present { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 15px; border-radius: 999px; border: 1px solid color-mix(in srgb, currentColor 32%, transparent); background: transparent; color: inherit; font: inherit; font-size: .875rem; cursor: pointer; transition: background .3s, border-color .3s; }
+.nav-present:hover { border-color: currentColor; }
+.nav-present svg { width: 9px; height: 10px; fill: currentColor; }
+.pm-bar, .pm-top, .pm-outline, .pm-hint, .pm-more { display: none; }
+body.is-presenting { padding-bottom: 120px; }
+body.is-presenting .nav-shell { opacity: 0 !important; visibility: hidden; transform: translateY(-100%) !important; pointer-events: none; transition: opacity .4s, transform .5s var(--ease-out), visibility 0s .5s; }
+body.is-presenting .progress { display: none !important; }
+body.is-presenting [data-stop]:not(.pm-open) [data-pm-detail] { display: none !important; }
+body.is-presenting .pm-open [data-pm-detail] { animation: pmIn .6s var(--ease-out) both; }
+@keyframes pmIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.pm-dim { opacity: .14 !important; filter: saturate(.2) blur(2px); transition: opacity .55s var(--ease-out), filter .55s var(--ease-out) !important; cursor: pointer; }
+body.is-presenting .tldr { padding: clamp(18px, 2vw, 26px) clamp(20px, 2.4vw, 30px); gap: 18px; }
+body.is-presenting .tldr-t { font-size: clamp(1.3rem, 2.1vw, 1.875rem); line-height: 1.25; letter-spacing: -0.03em; }
+body.is-presenting .tldr-pts span { font-size: .875rem; padding: 6px 12px; }
+body.is-presenting .pm-active .pm-more { display: inline-flex; align-items: center; gap: 8px; align-self: flex-start; min-height: 42px; margin-top: 8px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font: inherit; font-size: .875rem; cursor: pointer; box-shadow: var(--shadow-1); }
+.pm-more svg { width: 12px; height: 12px; transition: transform .35s var(--ease-out); }
+.pm-open .pm-more svg { transform: rotate(180deg); }
+/* Presentation builds: items inside a section come into focus one at a time.
+   No outlines or color. The current item grows slightly and stays sharp, lifted with the site's own hover shadow;
+   covered items soften and blur a little, upcoming items a little more. */
+body.is-presenting [data-pm-seq] > * { transition: opacity .5s var(--ease-out), filter .5s var(--ease-out), scale .5s var(--ease-out), box-shadow .5s var(--ease-out); transform-origin: center; }
+body.is-presenting .pm-now { opacity: 1 !important; filter: none; scale: 1.035; position: relative; z-index: 2; box-shadow: var(--shadow-2); }
+body.is-presenting .pm-done { opacity: .5 !important; filter: blur(1.2px); }
+body.is-presenting .pm-later { opacity: .3 !important; filter: blur(2px); }
+/* Rows inside a list or card stay flat and grow from their left edge, so text stays aligned */
+body.is-presenting .protocol > li.pm-now, body.is-presenting .bring-row.pm-now, body.is-presenting .timeline > div.pm-now, body.is-presenting .bar-row.pm-now { box-shadow: none; scale: 1.02; transform-origin: left center; }
+@media (max-width: 720px) { body.is-presenting .pm-now { scale: 1.015; } }
+/* Presentation intros: a transition card shown before each new page */
+.pm-intro { display: none; position: fixed; inset: 0; z-index: 55; align-items: center; padding: 72px max(16px, env(safe-area-inset-right, 0px)) 132px max(16px, env(safe-area-inset-left, 0px)); background: var(--page); cursor: pointer; }
+body.is-presenting .pm-intro.is-on { display: flex; animation: pmFade .5s var(--ease-out) both; }
+.pm-intro-in { width: min(1280px, 100%); margin-inline: auto; display: flex; flex-direction: column; align-items: flex-start; gap: clamp(18px, 2.4vw, 30px); }
+.pm-intro-h { font-size: clamp(2.6rem, 6.6vw, 6.25rem); font-weight: 500; letter-spacing: -0.058em; line-height: .96; color: var(--ink); max-width: 15ch; text-wrap: balance; }
+.pm-intro-x { font-size: clamp(1.2rem, 1.9vw, 1.75rem); line-height: 1.36; letter-spacing: -0.02em; color: var(--ink-2); max-width: 36ch; text-wrap: pretty; }
+.pm-intro-go { margin-top: 8px; font-family: var(--font-mono); font-size: .8125rem; color: var(--ink-3); }
+body.is-presenting .pm-intro.is-on .pm-intro-in > * { animation: pmIn .8s var(--ease-out) both; }
+body.is-presenting .pm-intro.is-on .pm-intro-in > :nth-child(2) { animation-delay: .08s; }
+body.is-presenting .pm-intro.is-on .pm-intro-in > :nth-child(3) { animation-delay: .18s; }
+body.is-presenting .pm-intro.is-on .pm-intro-in > :nth-child(4) { animation-delay: .4s; }
+@keyframes pmFade { from { opacity: 0; } to { opacity: 1; } }
+/* Case brief: plain-language setup, the argument, and a glossary */
+.brief { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.brief-card { background: var(--card); border-radius: 22px; padding: clamp(18px, 2.2vw, 26px); display: flex; flex-direction: column; gap: 14px; box-shadow: var(--shadow-1); min-width: 0; }
+.brief-card--wide { grid-column: 1 / -1; }
+.brief-plain { font-size: clamp(1.25rem, 1.8vw, 1.5rem); line-height: 1.4; letter-spacing: -0.015em; color: var(--ink); text-wrap: pretty; }
+.claims { list-style: none; padding: 0; display: flex; flex-direction: column; }
+.claims li { display: flex; flex-direction: column; gap: 4px; padding-block: 12px; border-top: 1px solid var(--line); }
+.claims li:first-child { border-top: 0; padding-top: 0; }
+.claim-k { font-family: var(--font-mono); font-size: .6875rem; letter-spacing: .04em; text-transform: uppercase; color: var(--cue-ink); }
+.claims p { font-size: .9375rem; line-height: 1.5; color: var(--ink); }
+.terms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 28px; }
+.terms > div { padding-block: 12px; border-top: 1px solid var(--line); min-width: 0; }
+.terms > div:nth-child(-n+3) { border-top: 0; padding-top: 0; }
+.terms dt { font-weight: 500; color: var(--ink); font-size: .9375rem; }
+.terms dd { margin-top: 3px; font-size: .9375rem; line-height: 1.5; color: var(--ink-2); }
+@media (max-width: 860px) { .brief { grid-template-columns: 1fr; } .terms { grid-template-columns: 1fr; } .terms > div:nth-child(2), .terms > div:nth-child(3) { border-top: 1px solid var(--line); padding-top: 12px; } }
+body.is-presenting .brief-plain { font-size: clamp(1.2rem, 1.7vw, 1.5rem); line-height: 1.4; letter-spacing: -0.015em; }
+body.is-presenting .claims li.pm-now { scale: 1.02; transform-origin: left center; box-shadow: none; }
+.pm-bar { position: fixed; z-index: 60; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); align-items: center; gap: 2px; padding: 6px; border-radius: 999px; background: var(--ink); color: var(--card); box-shadow: 0 18px 50px rgba(0, 0, 0, .28); max-width: calc(100vw - 24px); }
+body.is-presenting .pm-bar { display: flex; animation: pmBar .6s var(--ease-out) both; }
+@keyframes pmBar { from { opacity: 0; transform: translate(-50%, 16px); } to { opacity: 1; transform: translate(-50%, 0); } }
+.pm-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 44px; height: 44px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; color: inherit; font: inherit; font-size: .875rem; cursor: pointer; transition: background .2s, color .2s; }
+.pm-btn svg { width: 16px; height: 16px; flex: none; }
+.pm-btn:hover:not(:disabled), .pm-where:hover { background: color-mix(in srgb, var(--card) 14%, transparent); }
+.pm-btn:disabled { opacity: .3; cursor: default; }
+.pm-btn[aria-pressed="true"] { background: var(--card); color: var(--ink); }
+.pm-where { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 1px; min-width: 0; width: clamp(150px, 22vw, 280px); height: 44px; padding: 0 14px; border: 0; border-radius: 16px; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; transition: background .2s; }
+.pm-ch, .pm-t { display: block; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pm-ch { font-family: var(--font-mono); font-size: .6875rem; opacity: .62; }
+.pm-t { font-size: .9375rem; font-weight: 500; }
+.pm-n { padding: 0 8px; font-family: var(--font-mono); font-size: .75rem; opacity: .7; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pm-sep { width: 1px; height: 24px; margin: 0 4px; background: color-mix(in srgb, var(--card) 24%, transparent); }
+.pm-top { position: fixed; z-index: 60; top: 0; left: 0; right: 0; height: 3px; background: color-mix(in srgb, var(--ink) 10%, transparent); }
+.pm-top span { display: block; width: 0; height: 100%; background: var(--cue); transition: width .5s var(--ease-out); }
+body.is-presenting .pm-top { display: block; }
+.pm-outline { position: fixed; z-index: 61; left: 50%; bottom: calc(82px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: min(440px, calc(100vw - 24px)); max-height: min(64vh, 580px); overflow: auto; overscroll-behavior: contain; padding: 8px; border-radius: 22px; background: var(--card); color: var(--ink); box-shadow: var(--shadow-2), 0 0 0 1px var(--line); }
+body.is-presenting .pm-outline.is-open { display: block; animation: pmIn .35s var(--ease-out) both; }
+.pm-oc { padding: 4px 0; }
+.pm-oc + .pm-oc { border-top: 1px solid var(--line); }
+.pm-oc-k { display: block; padding: 8px 10px 4px; font-family: var(--font-mono); font-size: .6875rem; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-3); }
+.pm-oi { display: flex; align-items: baseline; gap: 12px; width: 100%; padding: 8px 10px; border: 0; border-radius: 12px; background: transparent; color: var(--ink); font: inherit; font-size: .9375rem; text-align: left; cursor: pointer; }
+.pm-oi:hover { background: var(--surface); }
+.pm-oi.is-current { background: var(--surface); font-weight: 500; }
+.pm-on { flex: none; width: 1.6rem; font-family: var(--font-mono); font-size: .75rem; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.pm-oi.is-current .pm-on { color: var(--cue-ink); }
+.pm-keys { margin-top: 4px; padding: 10px 10px 6px; border-top: 1px solid var(--line); font-family: var(--font-mono); font-size: .6875rem; line-height: 1.6; color: var(--ink-3); }
+.pm-hint { position: fixed; z-index: 60; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); padding: 8px 14px; border-radius: 999px; background: var(--card); color: var(--ink-2); box-shadow: var(--shadow-1), 0 0 0 1px var(--line); font-family: var(--font-mono); font-size: .75rem; white-space: nowrap; pointer-events: none; }
+body.is-presenting .pm-hint.is-on { display: block; animation: pmHint 5s var(--ease-out) both; }
+@keyframes pmHint { 0% { opacity: 0; transform: translate(-50%, 8px); } 8%, 82% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, 0); } }
+@media (max-width: 720px) {
+  .pm-ch, .pm-sep, .pm-btn-label, .pm-hint { display: none !important; }
+  .pm-where { width: auto; flex: 1; }
+  .pm-btn { min-width: 40px; padding: 0 10px; }
+}
 .progress { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 45; display: inline-flex; align-items: center; min-height: 38px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--glass-line); background: var(--glass); -webkit-backdrop-filter: blur(16px) saturate(1.5); backdrop-filter: blur(16px) saturate(1.5); box-shadow: var(--shadow-1); font-family: var(--font-mono); font-size: .75rem; color: var(--ink); font-variant-numeric: tabular-nums; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -686,6 +792,7 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
       <a href="#more" data-nav="more">More</a>
       <a class="hide-sm" href="#about" data-nav="about">About</a>
     </div>
+    <button class="nav-present hide-sm" type="button" data-pm-start aria-label="Start presentation mode"><svg viewBox="0 0 9 10" aria-hidden="true"><path d="M0 0l9 5-9 5z"/></svg>Present</button>
     <a class="nav-cta" href="#contact">Contact</a>
   </nav>
 </div>
@@ -715,7 +822,7 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
     </div>
   </section>
 
-  <section class="wrap intro" aria-label="Positioning">
+  <section class="wrap intro" id="intro" aria-label="Positioning">
     <div class="intro-pills" data-reveal>
       <span class="pill dot">Research-led designer</span>
       <span class="pill"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="var(--cue)" d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"/></svg>Published first author, 2021</span>
@@ -743,13 +850,13 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
       <div class="what-text" data-reveal>
         <span class="pill dot">What I do</span>
         <h3>Evidence first, then design.</h3>
-        <p>I'm a research-led designer and Art Director at Mint Digital, with a BS in Economics from UPLB. I find out where and why people get stuck, then design the pages they move through.</p>
+        <p data-pm-detail>A research-led designer: Art Director at Mint Digital, BS Economics from UPLB.</p>
         <a class="btn" href="#work">See selected work <span class="arr" aria-hidden="true">→</span></a>
       </div>
-      <div class="bring" data-reveal style="--i:1">
-        <div class="bring-row"><span class="label">Research</span><p>Experiments, surveys, funnel analytics, team usability walkthroughs and informal stakeholder interviews.</p></div>
-        <div class="bring-row"><span class="label">Design</span><p>Identity, websites, funnels and product UI, in Figma, Wix and GoHighLevel.</p></div>
-        <div class="bring-row"><span class="label">Evidence to design</span><p>Each case shows the question, the evidence, my part, and the design change that followed.</p></div>
+      <div class="bring" data-pm-seq data-reveal style="--i:1">
+        <div class="bring-row"><span class="label">Research-trained</span><p>Experiments, surveys and statistics, with an award-winning thesis.</p></div>
+        <div class="bring-row"><span class="label">Understands digital experiences</span><p>I build and maintain live sites and funnels.</p></div>
+        <div class="bring-row"><span class="label">Evidence into improvements</span><p>I turn data and feedback into fixes that ship.</p></div>
       </div>
     </div>
   </section>
@@ -761,10 +868,12 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
         <span class="pill dot">01 · Selected work</span>
         <h2 class="giant" data-reveal="lines"><span class="mask"><span>Work</span></span></h2>
       </div>
-      <p class="sec-desc" data-reveal>Three case studies, each from question to evidence to decision. The full method, data and limits are inside each one.</p>
+      <p class="sec-desc" data-reveal data-pm-detail>Three case studies, each from question to evidence to decision. The full method, data and limits are inside each one.</p>
     </header>
 
-    <div class="case-grid">
+    <div class="tldr tldr--home" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">Here are three cases: one experiment and two live websites I improved.</p></div></div>
+
+    <div class="case-grid" data-pm-seq>
       <article class="ccard" data-reveal style="--i:0">
         <a class="media" href="#thesis" tabindex="-1" aria-hidden="true">
           <img src="img/thesis-award.webp" width="2400" height="1599" alt="" loading="lazy" style="object-position:48% 42%">
@@ -774,10 +883,10 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
         <div class="ccard-body">
           <span class="badge dot">Academic experiment</span>
           <h3 class="card-title"><a href="#thesis">Does an AI label change the grade?</a></h3>
-          <p class="ccard-q">I tested whether telling students that AI helped write an essay changed the grade and credibility they gave it.</p>
+          <p class="ccard-q" data-pm-detail>I tested whether telling students that AI helped write an essay changed the grade and credibility they gave it.</p>
           <dl class="ccard-facts">
-            <div><dt>My role</dt><dd>Sole author: design, stimuli, survey and analysis</dd></div>
-            <div><dt>Evidence</dt><dd>2 × 2 experiment · 102 students · 408 essay ratings</dd></div>
+            <div data-pm-detail><dt>My role</dt><dd>Sole author: design, stimuli, survey and analysis</dd></div>
+            <div data-pm-detail><dt>Evidence</dt><dd>2 × 2 experiment · 102 students · 408 essay ratings</dd></div>
             <div><dt>Result</dt><dd>The label cost the stronger essays about 9 grade points.</dd></div>
           </dl>
           <a class="btn" href="#thesis">Read the study <span class="arr" aria-hidden="true">→</span></a>
@@ -793,10 +902,10 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
         <div class="ccard-body">
           <span class="badge dot">Feedback to design fixes</span>
           <h3 class="card-title"><a href="#prime-audit">Fixing the activation path users got stuck in</a></h3>
-          <p class="ccard-q">Users flagged where the site's step-by-step activation path lost them. Our COO compiled it into a written audit, and I made the fixes.</p>
+          <p class="ccard-q" data-pm-detail>Users flagged where the site's step-by-step activation path lost them. Our COO compiled it into a written audit, and I made the fixes.</p>
           <dl class="ccard-facts">
-            <div><dt>My role</dt><dd>Designer of the site; made the fixes</dd></div>
-            <div><dt>Evidence</dt><dd>Audit of user feedback · 14 findings</dd></div>
+            <div data-pm-detail><dt>My role</dt><dd>Designer of the site; made the fixes</dd></div>
+            <div data-pm-detail><dt>Evidence</dt><dd>Audit of user feedback · 14 findings</dd></div>
             <div><dt>Result</dt><dd>8 fixes visible on the live site, including the one blocker.</dd></div>
           </dl>
           <a class="btn" href="#prime-audit">Read the case <span class="arr" aria-hidden="true">→</span></a>
@@ -812,10 +921,10 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
         <div class="ccard-body">
           <span class="badge dot">Analytics-informed design</span>
           <h3 class="card-title"><a href="#olynation">Finding where new members dropped off</a></h3>
-          <p class="ccard-q">Funnel step data showed where new members left onboarding. Conversations with group leaders suggested why, and team walkthroughs and relayed reports caught what broke.</p>
+          <p class="ccard-q" data-pm-detail>Funnel step data showed where new members left onboarding. Conversations with group leaders suggested why, and team walkthroughs and relayed reports caught what broke.</p>
           <dl class="ccard-facts">
-            <div><dt>My role</dt><dd>Art Director; designed and built the site</dd></div>
-            <div><dt>Evidence</dt><dd>Funnel data · stakeholder interviews · team walkthroughs · relayed reports</dd></div>
+            <div data-pm-detail><dt>My role</dt><dd>Art Director; designed and built the site</dd></div>
+            <div data-pm-detail><dt>Evidence</dt><dd>Funnel data · stakeholder interviews · team walkthroughs · relayed reports</dd></div>
             <div><dt>Result</dt><dd>6 design changes, from video order to a new identity.</dd></div>
           </dl>
           <a class="btn" href="#olynation">Read the case <span class="arr" aria-hidden="true">→</span></a>
@@ -831,17 +940,19 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
         <span class="pill dot">02 · Approach</span>
         <h2 class="giant" data-reveal="lines"><span class="mask"><span>Approach</span></span></h2>
       </div>
-      <p class="sec-desc" data-reveal>How evidence turns into design: name the decision, use the evidence that can answer it, and change the design where it points.</p>
+      <p class="sec-desc" data-reveal data-pm-detail>How evidence turns into design: name the decision, use the evidence that can answer it, and change the design where it points.</p>
     </header>
 
-    <ol class="loop loop--4">
-      <li class="step" data-reveal style="--i:0"><span class="label">01</span><h3>Ask the question</h3><p>Name the decision that depends on the answer, like which step to fix first.</p></li>
-      <li class="step" data-reveal style="--i:1"><span class="label">02</span><h3>Pick the evidence</h3><p>Step data for where people stop, conversations for why, experiments for whether a change makes the difference.</p></li>
-      <li class="step" data-reveal style="--i:2"><span class="label">03</span><h3>Find the pattern</h3><p>Group what I see into a few patterns, and note how strong each one is.</p></li>
-      <li class="step" data-reveal style="--i:3"><span class="label">04</span><h3>Design, then check</h3><p>Make the change, then check that it held: in a team walkthrough, on the live site, or in the next round of data.</p></li>
+    <div class="tldr tldr--home" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">Every case follows the same four steps, starting with the decision.</p></div></div>
+
+    <ol class="loop loop--4" data-pm-seq>
+      <li class="step" data-reveal style="--i:0"><span class="label">01</span><h3>Ask the question</h3><p data-pm-detail>Name the decision that depends on the answer, like which step to fix first.</p></li>
+      <li class="step" data-reveal style="--i:1"><span class="label">02</span><h3>Pick the evidence</h3><p data-pm-detail>Step data for where people stop, conversations for why, experiments for whether a change makes the difference.</p></li>
+      <li class="step" data-reveal style="--i:2"><span class="label">03</span><h3>Find the pattern</h3><p data-pm-detail>Group what I see into a few patterns, and note how strong each one is.</p></li>
+      <li class="step" data-reveal style="--i:3"><span class="label">04</span><h3>Design, then check</h3><p data-pm-detail>Make the change, then check that it held: in a team walkthrough, on the live site, or in the next round of data.</p></li>
     </ol>
 
-    <div class="evidence evidence--3" role="table" aria-label="Evidence I use and what it tells me" data-reveal>
+    <div data-pm-detail class="evidence evidence--3" role="table" aria-label="Evidence I use and what it tells me" data-reveal>
       <div class="ev-row ev-head" role="row">
         <span class="label" role="columnheader">Evidence</span>
         <span class="label" role="columnheader">What it tells me</span>
@@ -879,7 +990,7 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
       </div>
     </div>
 
-    <div class="methods">
+    <div class="methods" data-pm-detail>
       <div class="mcard" data-reveal style="--i:0">
         <span class="label">In my record</span>
         <div class="chips">
@@ -901,8 +1012,10 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
         <span class="pill dot">03 · More work</span>
         <h2 class="t-h2" data-reveal="lines"><span class="mask"><span>More work.</span></span> <span class="mask"><span class="muted" style="--i:1">Research, applied, design.</span></span></h2>
       </div>
-      <p class="sec-desc" data-reveal>Shorter entries that show range. I'm glad to walk through any of them.</p>
+      <p class="sec-desc" data-reveal data-pm-detail>Shorter entries that show range. I'm glad to walk through any of them.</p>
     </header>
+
+    <div class="tldr tldr--home" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">Beyond these three cases, I also have a published paper, an internship, internal tools and identity work.</p></div></div>
 
     <div class="sub-row sub-row--first" id="research"><h3>Research</h3><span class="label">Published paper and internship</span></div>
     <div class="cards-2">
@@ -912,7 +1025,7 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
           <span class="badge dot">Published</span>
         </div>
         <div class="stat-panel stat-panel--sm"><span class="stat" data-count="406">406</span><p class="stat-k">students surveyed, cross-sectional</p></div>
-        <p>First author of five. I led the student team and wrote most of the paper, which found that people's conscious response to astrology content moved closely with their susceptibility to the Barnum effect.</p>
+        <p data-pm-detail>First author of five. I led the student team and wrote most of the paper, which found that people's conscious response to astrology content moved closely with their susceptibility to the Barnum effect.</p>
         <div class="card-foot">
           <dl class="details"><div><dt>Role</dt><dd>First author</dd></div><div><dt>Method</dt><dd>Survey</dd></div><div><dt>Journal</dt><dd>IJMABER 2(4)</dd></div></dl>
           <a class="round-btn" href="https://ijmaberjournal.org/index.php/ijmaber/article/view/111" target="_blank" rel="noopener" aria-label="Read the article">↗</a>
@@ -924,7 +1037,7 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
           <span class="badge dot">Internship</span>
         </div>
         <div class="stat-panel stat-panel--sm"><span class="stat" data-count="156">156</span><p class="stat-k">hours of data preparation, analysis and reporting</p></div>
-        <p>Prepared survey and public data, analyzed brand awareness and consideration, ran social listening, built a marketing mix model in R, and reported findings in Tableau dashboards and decks.</p>
+        <p data-pm-detail>Prepared survey and public data, analyzed brand awareness and consideration, ran social listening, built a marketing mix model in R, and reported findings in Tableau dashboards and decks.</p>
         <div class="card-foot">
           <dl class="details"><div><dt>Role</dt><dd>Analytics intern</dd></div><div><dt>Methods</dt><dd>EDA, MMM, listening</dd></div><div><dt>Output</dt><dd>Dashboards, decks</dd></div></dl>
         </div>
@@ -939,7 +1052,7 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
           <span class="badge dot">AI-assisted build</span>
         </div>
         <div class="media"><img src="img/mint-dashboard.webp" width="1160" height="970" alt="Team Tasks dashboard in a dark teal theme: a greeting with open, recurring and due-today counts, filters, and grouped task cards. Names and task details are blurred." loading="lazy" style="object-position:0% 0%"><span class="gchips"><span class="gchip">Figma</span><span class="gchip">Claude</span><span class="gchip">Team Brain</span></span></div>
-        <p>One page where each person on the team sees and edits their tasks. Status rules match how the team works: tasks in QA read as submitted, and recurring tasks never show as late. I set the design in Figma and directed the build with Claude.</p>
+        <p data-pm-detail>One page where each person on the team sees and edits their tasks. Status rules match how the team works: tasks in QA read as submitted, and recurring tasks never show as late. I set the design in Figma and directed the build with Claude.</p>
         <div class="card-foot"><dl class="details"><div><dt>Scope</dt><dd>Product UI</dd></div><div><dt>Tools</dt><dd>Figma, Claude</dd></div><div><dt>Year</dt><dd>2026</dd></div></dl></div>
       </article>
       <article class="tcard" data-reveal style="--i:1">
@@ -948,7 +1061,7 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
           <span class="badge dot">Launching Nov 2026</span>
         </div>
         <div class="media"><img src="img/rpc-pro-site.webp" width="1600" height="898" alt="RPC Pro website hero: large gold PRO lettering over a dark city backdrop, with a phone showing the app's dashboard." loading="lazy" style="object-position:50% 30%"><span class="gchips"><span class="gchip">Figma</span><span class="gchip">Landing pages</span></span></div>
-        <p>Landing pages and the website for RPC Pro, the premium tier of the app OlyNation Prime uses to run onboarding. One primary action, and a clear path for existing users to log in instead of opening a second account.</p>
+        <p data-pm-detail>Landing pages and the website for RPC Pro, the premium tier of the app OlyNation Prime uses to run onboarding. One primary action, and a clear path for existing users to log in instead of opening a second account.</p>
         <div class="card-foot"><dl class="details"><div><dt>Scope</dt><dd>Website</dd></div><div><dt>Tools</dt><dd>Figma</dd></div><div><dt>Status</dt><dd>In progress</dd></div></dl></div>
       </article>
     </div>
@@ -956,17 +1069,17 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
     <div class="rows-card" data-reveal>
       <div class="row">
         <span class="row-name">Market Movers Alliance</span>
-        <p class="small">GoHighLevel funnels for a trading-education community. The contract has concluded; the site is still live.</p>
+        <p class="small" data-pm-detail>GoHighLevel funnels for a trading-education community. The contract has concluded; the site is still live.</p>
         <a class="arrow-link row-link" href="https://www.marketmoversalliance.com/" target="_blank" rel="noopener">View site <span class="arr" aria-hidden="true">↗</span></a>
       </div>
       <div class="row">
         <span class="row-name">Localization</span>
-        <p class="small">Localized assets and pages across about 23 language markets.</p>
+        <p class="small" data-pm-detail>Localized assets and pages across about 23 language markets.</p>
         <span class="badge row-link">Ongoing</span>
       </div>
       <div class="row">
         <span class="row-name">Client projects<span class="tag-lock">Exclusive</span></span>
-        <p class="small">A brand rename, campaign sites and community platforms that stay with the clients. I can walk through my role and process on a call.</p>
+        <p class="small" data-pm-detail>A brand rename, campaign sites and community platforms that stay with the clients. I can walk through my role and process on a call.</p>
         <a class="arrow-link row-link" href="#contact">Ask me <span class="arr" aria-hidden="true">→</span></a>
       </div>
     </div>
@@ -1024,14 +1137,17 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
         <h2 class="t-h2" data-reveal="lines"><span class="mask"><span>Trained in economics.</span></span> <span class="mask"><span class="muted" style="--i:1">Working in design.</span></span></h2>
       </div>
     </header>
+
+    <div class="tldr tldr--home" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">I did research and design separately for years, and only later found that combining the two is the work I find most fulfilling.</p></div></div>
     <div class="about">
       <div class="about-main" data-reveal>
         <p class="lead">I'm Kris, a research-led designer. I studied economics at the University of the Philippines Los Baños, specializing in development economics. Since 2018 I've worked across illustration, web design, brand strategy and creative development.</p>
-        <p>At Mint Digital I joined as a graphic artist in August 2024 and became Art Director in April 2025. I lead visual direction across brands, websites and funnels.</p>
-        <p>I use Claude and Figma every day. My UI/UX experience is what lets me direct AI tools toward the design I have in mind. I value clarity, intention and consistency in every project I lead.</p>
+        <p class="about-note">I only later found real fulfillment in combining research with design, which is why some of my earlier work wasn't documented the way it would be today.</p>
+        <p data-pm-detail>At Mint Digital I joined as a graphic artist in August 2024 and became Art Director in April 2025. I lead visual direction across brands, websites and funnels.</p>
+        <p data-pm-detail>I use Claude and Figma every day. My UI/UX experience is what lets me direct AI tools toward the design I have in mind. I value clarity, intention and consistency in every project I lead.</p>
       </div>
       <div class="about-side" data-reveal style="--i:1">
-        <dl class="timeline">
+        <dl class="timeline" data-pm-seq>
           <div><dt>2018</dt><dd>Starts illustration practice</dd></div>
           <div><dt>2021</dt><dd>First-author paper in IJMABER, from senior high at De La Salle University</dd></div>
           <div><dt>Internship</dt><dd>Kinesso, GCC analytics team, 156 hours</dd></div>
@@ -1042,7 +1158,7 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
         </dl>
       </div>
     </div>
-    <div class="tools" data-reveal>
+    <div class="tools" data-reveal data-pm-detail>
       <div class="tool-row"><h4>Collect<small>Surveys, experiments, data</small></h4><div class="chips"><span class="chip">Qualtrics <i>randomizers, consent flows</i></span><span class="chip">Google Sheets and Drive</span><span class="chip">YouGov and public statistics</span></div></div>
       <div class="tool-row"><h4>Analyze<small>Models and summaries</small></h4><div class="chips"><span class="chip">Stata 18</span><span class="chip">Excel <i>PivotTables, VLOOKUP, INDEX/MATCH</i></span><span class="chip chip--open">R <i>learning</i></span><span class="chip chip--open">Python <i>learning</i></span><span class="chip chip--open">Tableau <i>learning</i></span></div></div>
       <div class="tool-row"><h4>Read behavior<small>Funnels, sites, conversation</small></h4><div class="chips"><span class="chip">GoHighLevel reporting</span><span class="chip">Wix Analytics</span><span class="chip">Quid Monitor</span></div></div>
@@ -1080,20 +1196,20 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
       <span class="pill">Best Undergraduate Thesis in Economics</span>
     </div>
     <h1 class="cs-title">Assessing grading bias from AI disclosure. <span class="muted">What a label does to judgment.</span></h1>
-    <p class="lead">UP asks students to disclose when they use AI. I tested whether that disclosure changes how the same essay is graded and trusted. It did, and it cost the strongest work the most.</p>
+    <p class="lead" data-pm-detail>UP asks students to disclose when they use AI. I tested whether that disclosure changes how the same essay is graded and trusted. It did, and it cost the strongest work the most.</p>
     <figure class="media cover">
       <img src="img/thesis-award.webp" width="2400" height="1599" alt="Kristoffer on stage at UPLB receiving the Best Undergraduate Thesis in Economics award, with the thesis title on the screen behind him." loading="lazy">
       <span class="gchip gchip--tr">Best Undergraduate Thesis in Economics</span>
       <span class="gchips"><span class="gchip">Maria Theresa D. Marcial award</span><span class="gchip">UPLB · 2026</span></span>
     </figure>
-    <dl class="ledger">
+    <dl class="ledger" data-pm-detail>
       <div><dt class="label">Role</dt><dd>Sole author. Adviser: Richard B. Daite</dd></div>
       <div><dt class="label">Design</dt><dd>2 × 2 within-rater factorial vignette experiment</dd></div>
       <div><dt class="label">Participants</dt><dd>102 BS Economics students; 8 faculty for the benchmark</dd></div>
       <div><dt class="label">Data</dt><dd>408 essay ratings, collected February 2026 in Qualtrics</dd></div>
       <div><dt class="label">Analysis</dt><dd>OLS with respondent-clustered standard errors, Stata 18</dd></div>
     </dl>
-    <div class="cs-links">
+    <div class="cs-links" data-pm-detail>
       <a class="arrow-link" href="https://www.ukdr.uplb.edu.ph/etd-undergrad/13603/" target="_blank" rel="noopener">Repository record <span class="arr" aria-hidden="true">↗</span></a>
       <a class="arrow-link" href="https://qualtricsxmpdcpwmy88.au1.qualtrics.com/jfe/preview/previewId/b3d3e5b0-faa7-470a-bdd4-fb925dda02b4/SV_e58RY9DoxUL8YYK?Q_CHL=preview&amp;Q_SurveyVersionID=current" target="_blank" rel="noopener">Survey preview <span class="arr" aria-hidden="true">↗</span></a>
       <span class="label">Full text is limited to UP accounts</span>
@@ -1101,11 +1217,23 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
   </section>
 
   <div class="wrap">
+    <section class="cs" data-step="Brief">
+      <div class="cs-label"><span class="label">Start here</span><h2>Brief</h2></div>
+      <div class="cs-body">
+        <div class="brief" data-reveal>
+          <div class="brief-card"><span class="label">In plain words</span><p class="brief-plain">I ran an experiment to test whether an AI-use label changes how people grade the same piece of work.</p></div>
+          <div class="brief-card"><span class="label">What this case shows</span><ul class="claims" data-pm-seq><li><span class="claim-k">Research-trained</span><p>I designed, piloted and analyzed it myself.</p></li><li><span class="claim-k">Understands digital experiences</span><p>Labels like "AI-generated" shape judgment online, too.</p></li><li><span class="claim-k">Evidence into improvements</span><p>It ends with practical recommendations for policy and grading.</p></li></ul></div>
+          <div class="brief-card brief-card--wide"><span class="label">Terms you'll hear</span><dl class="terms"><div><dt>AI-use label</dt><dd>A note saying AI helped write it.</dd></div><div><dt>2 × 2 design</dt><dd>Weaker or stronger essay, label on or off.</dd></div><div><dt>Within-rater</dt><dd>Everyone graded all four versions.</dd></div><div><dt>Credibility</dt><dd>How trustworthy it felt, from 1 to 5.</dd></div><div><dt>p-value</dt><dd>Below .05: unlikely to be chance.</dd></div></dl></div>
+        </div>
+      </div>
+    </section>
+
     <section class="cs" data-step="Context">
       <div class="cs-label"><span class="label">01</span><h2>Context</h2></div>
       <div class="cs-body" data-reveal>
-        <p>Generative AI makes it harder to see how much of a submission reflects a student's own effort. The University of the Philippines responded with guidelines in 2023 that ask students to disclose AI use.</p>
-        <p>Economics has a name for what can go wrong next. A grade is a signal of ability the grader can't observe directly (Spence 1973), and when one side knows less about quality, it tends to discount (Akerlof 1970). An AI label adds new information to that exchange. It could inform the grade, or it could bias it.</p>
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">The University of the Philippines now asks students to disclose when they use AI, which raises a question: can that label alone change how their work is judged?</p></div></div>
+        <p data-pm-detail>Generative AI makes it harder to see how much of a submission reflects a student's own effort. The University of the Philippines responded with guidelines in 2023 that ask students to disclose AI use.</p>
+        <p data-pm-detail>Economics has a name for what can go wrong next. A grade is a signal of ability the grader can't observe directly (Spence 1973), and when one side knows less about quality, it tends to discount (Akerlof 1970). An AI label adds new information to that exchange. It could inform the grade, or it could bias it.</p>
       </div>
     </section>
 
@@ -1113,20 +1241,22 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
       <div class="cs-label"><span class="label">02</span><h2>Question</h2></div>
       <div class="cs-body" data-reveal>
         <p class="question">Do AI disclosure labels change how evaluators grade the same student work, and how credible they find it?</p>
-        <ol class="objectives">
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">I measured both the grade and how much graders trusted the work, because the two don't always move together.</p></div></div>
+        <ol class="objectives" data-pm-detail>
           <li><span class="label">Objective 1</span>Measure the size and direction of the label's effect on grades and perceived credibility.</li>
           <li><span class="label">Objective 2</span>Check whether the effect holds after adjusting for how lenient each rater is against a faculty benchmark.</li>
         </ol>
-        <p>Five hypotheses followed: the label lowers grades (H1), stronger essays earn more (H2), the label's effect depends on quality (H3), rater leniency moves grades (H4), and the penalty persists after all of these (H5).</p>
+        <p data-pm-detail>Five hypotheses followed: the label lowers grades (H1), stronger essays earn more (H2), the label's effect depends on quality (H3), rater leniency moves grades (H4), and the penalty persists after all of these (H5).</p>
       </div>
     </section>
 
     <section class="cs" data-step="Design">
       <div class="cs-label"><span class="label">03</span><h2>Design</h2></div>
       <div class="cs-body">
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">I built the test around short essays I prepared myself, so every grader saw identical work and only the AI label and the essay's quality changed.</p></div></div>
         <figure class="fig" data-reveal>
           <div class="panel">
-            <div class="matrix" role="table" aria-label="Results by condition">
+            <div class="matrix" data-pm-seq=".cell" role="table" aria-label="Results by condition">
               <span class="mh" role="columnheader"></span>
               <span class="mh" role="columnheader">No label</span>
               <span class="mh mh--cue" role="columnheader">AI label shown</span>
@@ -1140,24 +1270,25 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
           </div>
           <figcaption class="fig-cap"><b>Fig. 1.</b> The 2 × 2 design, with the result in each cell: mean grade (0–100), mean credibility (1–5) and number of ratings. Orange marks the AI label, the cue under test.</figcaption>
         </figure>
-        <p>Every rater graded four short economics essays: a weaker and a stronger version on rice price caps, and the same on sin taxes. The AI label was randomized separately for each essay, so the same text carried the label for some raters and not for others. Essay order was randomized too.</p>
-        <p>Because each person rated all four essays, every rater served as their own comparison. Standard errors are clustered by rater to account for the repeated ratings.</p>
+        <p data-pm-detail>Every rater graded four short economics essays: a weaker and a stronger version on rice price caps, and the same on sin taxes. The AI label was randomized separately for each essay, so the same text carried the label for some raters and not for others. Essay order was randomized too.</p>
+        <p data-pm-detail>Because each person rated all four essays, every rater served as their own comparison. Standard errors are clustered by rater to account for the repeated ratings.</p>
       </div>
     </section>
 
     <section class="cs" data-step="Process">
       <div class="cs-label"><span class="label">04</span><h2>Process</h2></div>
       <div class="cs-body">
-        <ol class="protocol" data-reveal>
-          <li><span class="label">01</span><div><h3>Build the stimuli</h3><p>Four essay snippets under 120 words, written with GPT-4. Quality differed in economic reasoning, depth, evidence, organization and clarity, not just readability.</p></div></li>
-          <li><span class="label">02</span><div><h3>Pilot the quality gap</h3><p>Respondents outside the main sample graded the essays without labels. Wave 1 missed my criteria, so I revised the prompts and stimuli. Wave 2 passed.</p></div></li>
-          <li><span class="label">03</span><div><h3>Set a faculty benchmark</h3><p>Eight of ten eligible Department of Economics faculty graded a common anchor essay with an analytic rubric. Their mean of 81 became the reference for each rater's leniency.</p></div></li>
-          <li><span class="label">04</span><div><h3>Recruit with consent</h3><p>Invitations went through the Office of the College Secretary. The survey opened on informed consent, and only students who agreed continued.</p></div></li>
-          <li><span class="label">05</span><div><h3>Run the task</h3><p>Each student graded the anchor essay, then the four essays in random order. Each essay got a 0–100 grade, a 1–5 credibility rating and an understanding check.</p></div></li>
-          <li><span class="label">06</span><div><h3>Debrief, clean, estimate</h3><p>A debrief explained the randomization. Raffle entries went through a separate form to keep responses anonymous. I coded the data in protected Google Sheets, dropped incomplete responses and failed checks, and estimated the models in Stata 18.</p></div></li>
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">I ran a pilot first to check that graders could tell the weaker essays from the stronger ones, and rewrote them when the first try fell short.</p></div></div>
+        <ol class="protocol" data-pm-seq data-reveal>
+          <li><span class="label">01</span><div><h3>Build the stimuli</h3><p data-pm-detail>Four essay snippets under 120 words, written with GPT-4. Quality differed in economic reasoning, depth, evidence, organization and clarity, not just readability.</p></div></li>
+          <li><span class="label">02</span><div><h3>Pilot the quality gap</h3><p data-pm-detail>Respondents outside the main sample graded the essays without labels. Wave 1 missed my criteria, so I revised the prompts and stimuli. Wave 2 passed.</p></div></li>
+          <li><span class="label">03</span><div><h3>Set a faculty benchmark</h3><p data-pm-detail>Eight of ten eligible Department of Economics faculty graded a common anchor essay with an analytic rubric. Their mean of 81 became the reference for each rater's leniency.</p></div></li>
+          <li><span class="label">04</span><div><h3>Recruit with consent</h3><p data-pm-detail>Invitations went through the Office of the College Secretary. The survey opened on informed consent, and only students who agreed continued.</p></div></li>
+          <li><span class="label">05</span><div><h3>Run the task</h3><p data-pm-detail>Each student graded the anchor essay, then the four essays in random order. Each essay got a 0–100 grade, a 1–5 credibility rating and an understanding check.</p></div></li>
+          <li><span class="label">06</span><div><h3>Debrief, clean, estimate</h3><p data-pm-detail>A debrief explained the randomization. Raffle entries went through a separate form to keep responses anonymous. I coded the data in protected Google Sheets, dropped incomplete responses and failed checks, and estimated the models in Stata 18.</p></div></li>
         </ol>
 
-        <figure class="fig" data-reveal>
+        <figure class="fig" data-reveal data-pm-detail>
           <div class="table-card">
             <table class="dtable">
               <thead><tr><th>Wave</th><th>Topic</th><th class="r">p<br>target &lt; .001</th><th class="r">Cohen's d<br>target &gt; 1.0</th><th class="r">Mean gap<br>target &gt; 20</th><th>Decision</th></tr></thead>
@@ -1172,7 +1303,7 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
           <figcaption class="fig-cap"><b>Fig. 2.</b> Pilot results against criteria set before piloting. Mean gap is the stronger essay's mean grade minus the weaker one's. Source: my two pilot surveys in Qualtrics, February 2026; pilot respondents were excluded from the main sample.</figcaption>
         </figure>
 
-        <figure class="fig" data-reveal>
+        <figure class="fig" data-reveal data-pm-detail>
           <div class="frame" style="max-width:820px"><img src="img/thesis-survey-flow.webp" width="1273" height="884" alt="Qualtrics survey flow: Brief, Background, Anchor, a Randomizer presenting essay blocks A to D, then Experience." loading="lazy"></div>
           <figcaption class="fig-cap"><b>Fig. 3.</b> The live survey flow in Qualtrics: brief, background items, the anchor essay, a randomizer that shows all four essay blocks in random order, then closing items.</figcaption>
         </figure>
@@ -1182,7 +1313,8 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
     <section class="cs" data-step="Findings">
       <div class="cs-label"><span class="label">05</span><h2>Findings</h2></div>
       <div class="cs-body">
-        <figure class="fig" data-reveal>
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">The AI label cost the stronger essays about nine points and lowered trust in weaker and stronger essays alike.</p></div></div>
+        <figure class="fig" data-reveal data-pm-detail>
           <div class="legend"><span class="key">No label</span><span class="key key--cue">AI label shown</span></div>
           <div class="plots">
             <div class="plot-card">
@@ -1247,14 +1379,14 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
           <figcaption class="fig-cap"><b>Fig. 4.</b> Descriptive means by essay quality and label, 101–103 ratings per cell. The label opened a gap of 2.4 grade points on weaker essays and 9.1 on stronger ones. For credibility, the gaps were 0.79 and 1.29.</figcaption>
         </figure>
 
-        <div class="note" data-reveal>
+        <div class="note" data-reveal data-pm-detail>
           <span class="label">Takeaway</span>
           <p>Raters recognized quality: stronger essays scored about 13.5 points higher. The AI label then took back the most from those same essays, about 9.3 points, against 3.6 for weaker ones.</p>
         </div>
 
         <figure class="fig panel" data-reveal>
           <div class="bars-head"><span class="bars-title">Grade points lost to the AI label</span><span class="label">Adjusted model</span></div>
-          <div class="bars">
+          <div class="bars" data-pm-seq>
             <div class="bar-row"><span class="bar-name">Weaker essays</span><span class="bar-track"><span class="bar bar--ns" style="width:35.8%"></span></span><span class="bar-val">−3.58<small>p = .064</small></span></div>
             <div class="bar-row"><span class="bar-name">Stronger essays</span><span class="bar-track"><span class="bar" style="width:92.7%"></span></span><span class="bar-val">−9.27<small>p &lt; .05</small></span></div>
             <div class="bar-axis" aria-hidden="true"><span></span><span class="ticks"><span style="left:0%">0</span><span style="left:20%">2</span><span style="left:40%">4</span><span style="left:60%">6</span><span style="left:80%">8</span><span style="left:100%">10</span></span><span class="axis-unit">points</span></div>
@@ -1262,7 +1394,7 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
           <figcaption class="fig-cap"><b>Fig. 5.</b> The stronger-essay effect is the label term plus the interaction term from Fig. 6 (−3.58 − 5.69). Hatched: not significant at the 5% level.</figcaption>
         </figure>
 
-        <figure class="fig" data-reveal>
+        <figure class="fig" data-reveal data-pm-detail>
           <div class="table-card">
             <table class="dtable">
               <thead><tr><th>Term</th><th class="r">Grade, 0–100<br>coef. (SE)</th><th class="r">p</th><th class="r">Credibility, 1–5<br>coef. (SE)</th><th class="r">p</th></tr></thead>
@@ -1278,9 +1410,9 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
           <figcaption class="fig-cap"><b>Fig. 6.</b> OLS estimates with standard errors clustered by respondent. Rater leniency is each rater's anchor-essay grade minus the faculty mean. Source: my survey of BS Economics undergraduates, second semester AY 2025–2026; author's computations.</figcaption>
         </figure>
 
-        <p>Credibility moved more than grades. The label lowered perceived credibility even for weaker essays (−0.85 on a five-point scale, p &lt; .001), where the grade barely moved. Without the leniency control the pattern holds: −2.37 for weaker essays (p = .246) and an interaction of −6.72 (p = .011).</p>
+        <p data-pm-detail>Credibility moved more than grades. The label lowered perceived credibility even for weaker essays (−0.85 on a five-point scale, p &lt; .001), where the grade barely moved. Without the leniency control the pattern holds: −2.37 for weaker essays (p = .246) and an interaction of −6.72 (p = .011).</p>
 
-        <div class="hyps" data-reveal>
+        <div class="hyps" data-reveal data-pm-detail>
           <div class="hyp"><span class="label">H1 · Label lowers grades</span><p>Small and marginal for weaker essays; larger and significant for stronger ones.</p><span class="decision">Partially supported</span></div>
           <div class="hyp"><span class="label">H2 · Quality raises grades</span><p>Positive and significant in every grade model.</p><span class="decision decision--pass">Supported</span></div>
           <div class="hyp"><span class="label">H3 · Effect depends on quality</span><p>The interaction shows a larger penalty at high quality.</p><span class="decision decision--pass">Supported</span></div>
@@ -1293,15 +1425,17 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
     <section class="cs" data-step="Interpretation">
       <div class="cs-label"><span class="label">06</span><h2>Interpretation</h2></div>
       <div class="cs-body" data-reveal>
-        <p>The label didn't subtract a flat amount. It took the most from the essays that had earned the most. One reading, which the thesis puts forward, is that raters credited part of a strong essay's quality to the tool rather than the student.</p>
-        <p>The credibility results point the same way. Raters graded weaker labeled essays about the same as unlabeled ones, but trusted them less. The label changed what the work signaled as well as how it scored.</p>
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">The better the essay, the more the AI label cost it.</p></div></div>
+        <p data-pm-detail>The label didn't subtract a flat amount. It took the most from the essays that had earned the most. One reading, which the thesis puts forward, is that raters credited part of a strong essay's quality to the tool rather than the student.</p>
+        <p data-pm-detail>The credibility results point the same way. Raters graded weaker labeled essays about the same as unlabeled ones, but trusted them less. The label changed what the work signaled as well as how it scored.</p>
       </div>
     </section>
 
     <section class="cs" data-step="Implications">
       <div class="cs-label"><span class="label">07</span><h2>Implications</h2></div>
       <div class="cs-body" data-reveal>
-        <p>Disclosure supports transparency, but on its own it can create a conditional penalty for good work. The thesis recommends bias-informed disclosure policies and grader calibration, so that an honest label doesn't cost students credit their work earned.</p>
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">Labels like "AI-generated" now appear across digital products, so they're worth testing before launch in case they penalize good work there too.</p></div></div>
+        <p data-pm-detail>Disclosure supports transparency, but on its own it can create a conditional penalty for good work. The thesis recommends bias-informed disclosure policies and grader calibration, so that an honest label doesn't cost students credit their work earned.</p>
         <div class="note note--plain">
           <span class="label">Why it matters for digital work</span>
           <p>Interfaces are full of labels like "AI-generated", "sponsored" and "verified". Readers interpret them as signals, and this study is a template for testing one before it ships.</p>
@@ -1312,21 +1446,23 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
     <section class="cs" data-step="Limits">
       <div class="cs-label"><span class="label">08</span><h2>Limits</h2></div>
       <div class="cs-body" data-reveal>
-        <ul class="list">
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">The study covered one department and short test essays, so testing with faculty comes next.</p></div></div>
+        <ul class="list" data-pm-detail>
           <li>One department, with students as raters. Faculty may grade differently.</li>
           <li>The essays were short, constructed snippets written with GPT-4, not real coursework.</li>
           <li>A vignette task is not a real grading session.</li>
           <li>Leniency calibration rests on a single benchmark essay.</li>
         </ul>
-        <p>The next study the thesis proposes: sample faculty, and use stimuli drawn from actual grading.</p>
+        <p data-pm-detail>The next study the thesis proposes: sample faculty, and use stimuli drawn from actual grading.</p>
       </div>
     </section>
 
     <section class="cs" data-step="Artifacts">
       <div class="cs-label"><span class="label">09</span><h2>Artifacts</h2></div>
       <div class="cs-body">
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">The defense deck, the survey and the full university record are all available here.</p></div></div>
         <figure class="fig" data-reveal>
-          <div class="gallery">
+          <div class="gallery" data-pm-seq>
             <div class="frame"><img src="img/thesis-slide-01.webp" width="1600" height="900" alt="Defense deck title slide: Assessing grading bias from AI disclosure at UPLB, an experimental study, May 5, 2026." loading="lazy"></div>
             <div class="frame"><img src="img/thesis-slide-08.webp" width="1600" height="900" alt="Defense deck methodology slide: design factors, essay stimuli, data scales and sample of 102 of 411 students." loading="lazy"></div>
             <div class="frame"><img src="img/thesis-slide-15.webp" width="1600" height="900" alt="Defense deck summary of findings, with each hypothesis marked supported, partially or conditionally supported." loading="lazy"></div>
@@ -1353,33 +1489,45 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
       <span class="pill">Wix · GoHighLevel</span>
     </div>
     <h1 class="cs-title">Finding where new members dropped off. <span class="muted">Data showed where. Feedback suggested why.</span></h1>
-    <p class="lead">A redesign of OlyNation's membership onboarding, guided by step data from GoHighLevel and by feedback from group leaders, gathered partly in informal Zoom calls.</p>
+    <p class="lead" data-pm-detail>A redesign of OlyNation's membership onboarding, guided by step data from GoHighLevel and by feedback from group leaders, gathered partly in informal Zoom calls.</p>
     <figure class="media cover cover--stage" style="--stage:#041208">
       <img src="img/olynation-site.webp" width="1019" height="714" alt="The redesigned olynation.team home page: Harnessing the power of the 5th Element with Team OlyNation." loading="lazy">
       <span class="gchip gchip--tr">olynation.team</span>
       <span class="gchips"><span class="gchip">Wix</span><span class="gchip">GoHighLevel</span><span class="gchip">July 2025</span></span>
     </figure>
-    <dl class="ledger">
+    <dl class="ledger" data-pm-detail>
       <div><dt class="label">Role</dt><dd>Art Director. I designed and built the site and directed the look; the team handled supporting work.</dd></div>
       <div><dt class="label">Platforms</dt><dd>Wix for the team site; GoHighLevel for the funnel, automations and analytics</dd></div>
       <div><dt class="label">Evidence</dt><dd>Funnel step data; stakeholder interviews on Zoom; team usability walkthroughs; reports relayed by our project manager</dd></div>
       <div><dt class="label">Timeline</dt><dd>Funnel work from July 2025; site updates until the May 2026 handover</dd></div>
       <div><dt class="label">Outcome data</dt><dd>Not available after the ownership transfer</dd></div>
     </dl>
-    <div class="cs-links">
+    <div class="cs-links" data-pm-detail>
       <a class="arrow-link" href="https://eng.olynation.team/" target="_blank" rel="noopener">Live funnel page <span class="arr" aria-hidden="true">↗</span></a>
       <span class="label">Now run by the new owners and changed since</span>
     </div>
   </section>
 
   <div class="wrap">
+    <section class="cs" data-step="Brief">
+      <div class="cs-label"><span class="label">Start here</span><h2>Brief</h2></div>
+      <div class="cs-body">
+        <div class="brief" data-reveal>
+          <div class="brief-card"><span class="label">In plain words</span><p class="brief-plain">OlyNation, a distributor community I worked on at Mint Digital, was losing people during sign-up, and I found out where and why.</p></div>
+          <div class="brief-card"><span class="label">What this case shows</span><ul class="claims" data-pm-seq><li><span class="claim-k">Research-trained</span><p>I kept four kinds of evidence separate.</p></li><li><span class="claim-k">Understands digital experiences</span><p>Step data showed me exactly where people left.</p></li><li><span class="claim-k">Evidence into improvements</span><p>It led to six design changes, plus fixes for problems people reported.</p></li></ul></div>
+          <div class="brief-card brief-card--wide"><span class="label">Terms you'll hear</span><dl class="terms"><div><dt>Funnel</dt><dd>The sign-up steps: page, form, emails.</dd></div><div><dt>Drop-off</dt><dd>Leaving before the next step.</dd></div><div><dt>GoHighLevel</dt><dd>The tool that ran and tracked the funnel.</dd></div><div><dt>Group leaders</dt><dd>Members who lead teams and onboard newcomers.</dd></div><div><dt>Team walkthroughs</dt><dd>Teammates testing the site with set tasks.</dd></div></dl></div>
+        </div>
+      </div>
+    </section>
+
     <section class="cs" data-step="Context">
       <div class="cs-label"><span class="label">01</span><h2>Context</h2></div>
       <div class="cs-body">
-        <p data-reveal>OlyNation was a distributor community for a wellness-technology company. The team site, olynation.team, was its public front. Onboarding happened in GoHighLevel: a landing page, a form and a thank-you page, followed by automated emails and materials. The goal was to bring new members all the way into membership.</p>
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">New members started on the team site I built, then went through a five-step sign-up funnel.</p></div></div>
+        <p data-reveal data-pm-detail>OlyNation was a distributor community for a wellness-technology company. The team site, olynation.team, was its public front. Onboarding happened in GoHighLevel: a landing page, a form and a thank-you page, followed by automated emails and materials. The goal was to bring new members all the way into membership.</p>
         <figure class="fig" data-reveal>
           <div class="funnel-wrap">
-            <div class="funnel">
+            <div class="funnel" data-pm-seq>
               <div class="fstep"><span class="label">Step 1</span><strong>Team site</strong><span class="plat">Wix</span></div>
               <div class="fstep fstep--cue"><span class="label">Step 2</span><strong>Landing page</strong><span class="plat">GoHighLevel</span></div>
               <div class="fstep fstep--cue"><span class="label">Step 3</span><strong>Form</strong><span class="plat">GoHighLevel</span></div>
@@ -1397,15 +1545,17 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
     <section class="cs" data-step="Problem">
       <div class="cs-label"><span class="label">02</span><h2>Problem</h2></div>
       <div class="cs-body" data-reveal>
-        <p class="question">People weren't reaching the next step.</p>
-        <p>GoHighLevel showed where the funnel lost them, and the losses changed with the order of the presentation videos. What the numbers couldn't say was why.</p>
+        <p class="question">New members weren't making it to the next sign-up step.</p>
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">We could see where people left, but not why.</p></div></div>
+        <p data-pm-detail>GoHighLevel showed where the funnel lost them, and the losses changed with the order of the presentation videos. What the numbers couldn't say was why.</p>
       </div>
     </section>
 
     <section class="cs" data-step="My role">
       <div class="cs-label"><span class="label">03</span><h2>My role</h2></div>
       <div class="cs-body">
-        <div class="two" data-reveal>
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">I designed, built and fixed the site, while the team helped produce and test it.</p></div></div>
+        <div class="two" data-reveal data-pm-detail>
           <div class="panel"><span class="label">Mine</span><ul class="list small" style="margin-top:12px"><li>The team website, designed and built on my own in Wix</li><li>The look of the funnel pages and the campaign</li><li>The new OlyNation identity and its brand guide</li><li>Design changes in response to the evidence</li><li>Fixes for issues found in walkthroughs, reports and my own checks</li><li>Requested updates across both GoHighLevel and Wix</li></ul></div>
           <div class="panel"><span class="label">With others</span><ul class="list small" style="margin-top:12px"><li>The Mint team handled production legwork</li><li>Group leaders collected member feedback and shared it with me, partly on Zoom calls</li><li>Teammates and leaders tested the site in task-based walkthroughs before activation events</li><li>Our project manager forwarded reports and update requests</li></ul></div>
         </div>
@@ -1415,17 +1565,18 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
     <section class="cs" data-step="Evidence">
       <div class="cs-label"><span class="label">04</span><h2>Evidence</h2></div>
       <div class="cs-body">
-        <p data-reveal>I kept four kinds of evidence apart, because each answers a different question.</p>
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">Because no single source could explain the drop-off, I used four: data showed where people left, conversations with group leaders suggested why, and team testing and user reports showed what broke.</p></div></div>
+        <p data-reveal data-pm-detail>I kept four kinds of evidence apart, because each answers a different question.</p>
         <figure class="fig" data-reveal>
-          <div class="pair">
-            <div class="pcard"><span class="label">Where</span><h3>Funnel step data<small>GoHighLevel</small></h3><ul class="list"><li>People were leaving before the next step.</li><li>When we switched from one video order to another, one lost fewer people.</li></ul><p class="gap">Couldn't show why they left.</p></div>
-            <div class="pcard"><span class="label">Why, possibly</span><h3>Stakeholder interviews<small>Informal Zoom calls with group leaders</small></h3><ul class="list"><li>The order of the videos was confusing.</li><li>Members needed support for other languages.</li></ul><p class="gap">Couldn't show how common each concern was.</p></div>
+          <div class="pair" data-pm-seq>
+            <div class="pcard"><span class="label">Quantitative</span><h3>Sign-up step data<small>Counted in GoHighLevel, the sign-up tool</small></h3><ul class="list" data-pm-detail><li>New members were leaving before they reached the next sign-up step.</li><li>When we swapped the order of the presentation videos, one order lost fewer people than the other.</li></ul><p class="gap" data-pm-detail>It couldn't tell us why people left.</p></div>
+            <div class="pcard"><span class="label">Direct</span><h3>Talks with group leaders<small>Informal Zoom calls</small></h3><ul class="list" data-pm-detail><li>Leaders said new members found the order of the videos confusing.</li><li>They said members wanted the materials in other languages.</li></ul><p class="gap" data-pm-detail>It couldn't tell us how many members felt that way.</p></div>
           </div>
-          <div class="pair" style="margin-top:12px">
-            <div class="pcard"><span class="label">What broke</span><h3>Team usability walkthroughs<small>Internal testing · teammates and leaders</small></h3><ul class="list"><li>Set tasks, done on their own phones before activation calls and events.</li><li>Issues came back to me to fix before the site was used live.</li></ul><p class="gap">Couldn't show how new members would manage.</p></div>
-            <div class="pcard"><span class="label">What people hit</span><h3>Relayed reports<small>Group leaders, through our project manager</small></h3><ul class="list"><li>Problems seen in real use, like library content showing in the wrong language.</li></ul><p class="gap">Came one at a time, second-hand.</p></div>
+          <div class="pair" data-pm-seq style="margin-top:12px">
+            <div class="pcard"><span class="label">Internal testing</span><h3>Team walkthroughs<small>Teammates and leaders testing on their own phones</small></h3><ul class="list" data-pm-detail><li>They worked through set tasks before activation calls and events.</li><li>They reported what broke so I could fix it before the site was used live.</li></ul><p class="gap" data-pm-detail>It couldn't show how new members would manage.</p></div>
+            <div class="pcard"><span class="label">Second-hand</span><h3>Reports from group leaders<small>Forwarded by our project manager</small></h3><ul class="list" data-pm-detail><li>Leaders reported problems they saw while using the site, like the resource library showing the wrong language first.</li></ul><p class="gap" data-pm-detail>Each report came one at a time, second-hand.</p></div>
           </div>
-          <figcaption class="fig-cap"><b>Fig. 2.</b> Four sources, kept apart. Funnel data was quantitative. The Zoom calls were informal stakeholder interviews about what members reported, not interviews with members. Walkthroughs were internal testing. Reports reached me second-hand.</figcaption>
+          <figcaption class="fig-cap" data-pm-detail><b>Fig. 2.</b> Four sources, kept separate. The Zoom calls were with group leaders about what members reported, not with members themselves.</figcaption>
         </figure>
       </div>
     </section>
@@ -1433,25 +1584,26 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
     <section class="cs" data-step="Changes">
       <div class="cs-label"><span class="label">05</span><h2>Changes</h2></div>
       <div class="cs-body">
-        <ul class="changes" data-reveal>
-          <li><b>Video order</b>Switched between sequences and kept the one GoHighLevel showed losing fewer people.</li>
-          <li><b>Content flow</b>Reordered the page so each section leads to the next.</li>
-          <li><b>Hierarchy</b>Made the content and the call to action read in order of importance.</li>
-          <li><b>Journey</b>Simplified the path from first visit to sign-up.</li>
-          <li><b>Languages</b>Added support for other languages, which members had asked for.</li>
-          <li><b>Identity</b>Replaced the dated OlyLife-derived look with an OlyNation identity I designed.</li>
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">The evidence led to six design changes, from the order of the presentation videos to a new visual identity.</p></div></div>
+        <ul class="changes" data-pm-seq data-reveal>
+          <li><b>Video order</b><span data-pm-detail>I tried the presentation videos in different orders and kept the one that lost fewer people.</span></li>
+          <li><b>Content flow</b><span data-pm-detail>I reordered the page so each section leads into the next.</span></li>
+          <li><b>Hierarchy</b><span data-pm-detail>I arranged the content and the main button in order of importance.</span></li>
+          <li><b>Journey</b><span data-pm-detail>I simplified the path from first visit to sign-up.</span></li>
+          <li><b>Languages</b><span data-pm-detail>I added other languages, which members had asked for.</span></li>
+          <li><b>Identity</b><span data-pm-detail>I replaced the dated look borrowed from OlyLife, the parent brand, with a new OlyNation identity.</span></li>
         </ul>
         <p class="label" data-reveal style="margin-top:8px">Fixes from reports and checks, with their source</p>
-        <div class="fixes">
+        <div class="fixes" data-pm-seq>
           <div class="fix" data-reveal>
             <div class="fix-head"><span class="decision">Relayed report · May 2026</span><h3>On mobile, the resource library opened on all languages and led with Hindi content, though English was the intended default</h3></div>
-            <div class="fix-col"><span class="label">Source</span><p>A group leader's report, forwarded by our project manager. The library was about to be used in activation calls and events.</p></div>
-            <div class="fix-col"><span class="label">What I changed</span><p>I resequenced the library so English content comes first. It was fixed the same evening, about half an hour after I picked it up.</p></div>
+            <div class="fix-col" data-pm-detail><span class="label">Source</span><p>A group leader's report, forwarded by our project manager. The library was about to be used in activation calls and events.</p></div>
+            <div class="fix-col" data-pm-detail><span class="label">What I changed</span><p>I resequenced the library so English content comes first. It was fixed the same evening, about half an hour after I picked it up.</p></div>
           </div>
           <div class="fix" data-reveal>
             <div class="fix-head"><span class="decision">Own check · Oct 2025</span><h3>A display problem on the site's tools page</h3></div>
-            <div class="fix-col"><span class="label">Source</span><p>I noticed it while adding a new product to both the GoHighLevel funnel and the Wix site, at our project manager's request.</p></div>
-            <div class="fix-col"><span class="label">What I changed</span><p>Fixed the tools page, and finished the product update on both platforms the evening it was requested.</p></div>
+            <div class="fix-col" data-pm-detail><span class="label">Source</span><p>I noticed it while adding a new product to both the GoHighLevel funnel and the Wix site, at our project manager's request.</p></div>
+            <div class="fix-col" data-pm-detail><span class="label">What I changed</span><p>Fixed the tools page, and finished the product update on both platforms the evening it was requested.</p></div>
           </div>
         </div>
         <figure class="fig" data-reveal>
@@ -1461,15 +1613,15 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
           </div>
           <figcaption class="fig-cap"><b>Fig. 3.</b> The parent-brand look the site started from, and the OlyNation identity I designed.</figcaption>
         </figure>
-        <figure class="fig" data-reveal>
-          <div class="gallery">
+        <figure class="fig" data-reveal data-pm-detail>
+          <div class="gallery" data-pm-seq>
             <div class="frame"><img src="img/olynation-guide-type.webp" width="1600" height="900" alt="Brand guide typography page: use Helvetica Regular for headings, with body and header specifications." loading="lazy"></div>
             <div class="frame"><img src="img/olynation-guide-color.webp" width="1600" height="900" alt="Brand guide color page: grey body text, white highlight, white-to-mint header gradient and green-to-lime emphasis gradient." loading="lazy"></div>
             <div class="frame"><img src="img/olynation-guide-elements.webp" width="1600" height="900" alt="Brand guide elements page: reusing the logo mark as a graphic element with adjusted corner rounding." loading="lazy"></div>
           </div>
           <figcaption class="fig-cap"><b>Fig. 4.</b> Pages from my OlyNation Brand Fundamentals guide.</figcaption>
         </figure>
-        <div class="note note--plain" data-reveal>
+        <div class="note note--plain" data-reveal data-pm-detail>
           <span class="label">Rules I set in the guide</span>
           <ul class="list small">
             <li>Body text in a light weight, tracked tight, in grey.</li>
@@ -1485,15 +1637,17 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
     <section class="cs" data-step="Outcome">
       <div class="cs-label"><span class="label">06</span><h2>Outcome</h2></div>
       <div class="cs-body" data-reveal>
-        <p>I can't report numbers. The GoHighLevel account went with the ownership transfer in May 2026, and we didn't keep exports in a fast-moving schedule. What I can say is which way each decision went: the version kept was the one the step data showed losing fewer people.</p>
-        <p>After the transfer, the team moved to OlyNation Prime, and onboarding moved into Rapid Prime Connect, an app built to run and track the same journey in one place. I now design its landing pages.</p>
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">I didn't save the numbers at the time, because I hadn't yet started treating design work as research.</p></div></div>
+        <p data-pm-detail>I can't report numbers. The GoHighLevel account went to the new owners in May 2026, and I hadn't kept exports, because at the time I saw this as design work rather than research. What I can say is which way each decision went: the version kept was the one the step data showed losing fewer people.</p>
+        <p data-pm-detail>After the transfer, the team moved to OlyNation Prime, and onboarding moved into Rapid Prime Connect, an app built to run and track the same journey in one place. I now design its landing pages.</p>
       </div>
     </section>
 
     <section class="cs" data-step="Limits">
       <div class="cs-label"><span class="label">07</span><h2>Limits</h2></div>
       <div class="cs-body" data-reveal>
-        <ul class="list">
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">The versions ran one after another rather than side by side, so I don't claim how big the improvement was.</p></div></div>
+        <ul class="list" data-pm-detail>
           <li>The video orders ran one after another, not at the same time. Changes in traffic, timing or audience could explain part of any difference.</li>
           <li>Member feedback reached me second-hand, through leaders and our project manager, so I can't say how many people hit each issue.</li>
           <li>Walkthroughs were run by teammates and leaders, who know the site better than new members do.</li>
@@ -1502,14 +1656,15 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
       </div>
     </section>
 
-    <section class="cs" data-step="Next time">
-      <div class="cs-label"><span class="label">08</span><h2>Next time</h2></div>
+    <section class="cs" data-step="Learnings">
+      <div class="cs-label"><span class="label">08</span><h2>Learnings</h2></div>
       <div class="cs-body">
-        <ul class="changes" data-reveal>
-          <li><b>Split, don't switch</b>Send traffic to both versions at the same time.</li>
-          <li><b>Define drop-off first</b>Write down what counts as leaving each step before launch.</li>
-          <li><b>Keep snapshots</b>Save the dashboard before and after every change.</li>
-          <li><b>Test with new members</b>Run the same task walkthroughs with a few new members, and talk to them directly.</li>
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">The biggest lessons were to measure from day one and to test with people who are new to the site.</p></div></div>
+        <ul class="changes" data-pm-seq data-reveal>
+          <li><b>Compare side by side</b><span data-pm-detail>Running the video orders one after another meant other changes could explain the difference.</span></li>
+          <li><b>Define the measure first</b><span data-pm-detail>Deciding what counts as drop-off before launch keeps every version measured the same way.</span></li>
+          <li><b>Save the evidence</b><span data-pm-detail>Losing the dashboard in the handover taught me to save it before and after every change.</span></li>
+          <li><b>Test with new members</b><span data-pm-detail>Our walkthroughs used people who already knew the site, so they couldn't show how newcomers would manage.</span></li>
         </ul>
       </div>
     </section>
@@ -1531,32 +1686,44 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
       <span class="pill">User feedback to design fixes</span>
     </div>
     <h1 class="cs-title">Fixing the activation path users got stuck in. <span class="muted">From a user-feedback audit to shipped changes.</span></h1>
-    <p class="lead">Users of the OlyNation Prime website gave feedback on its step-by-step activation path. Our COO compiled it into a written audit with 14 findings, and I made the fixes. This case shows the findings, the patterns behind them, and how each one reads on the live site today.</p>
+    <p class="lead" data-pm-detail>Users of the OlyNation Prime website gave feedback on its step-by-step activation path. Our COO compiled it into a written audit with 14 findings, and I made the fixes. This case shows the findings, the patterns behind them, and how each one reads on the live site today.</p>
     <figure class="media cover cover--stage" style="--stage:#000000">
       <img src="img/audit-needhelp.webp" width="1197" height="652" alt="The OlyNation Prime site in May 2026: a Need Help With Your Next Step section with a gold Contact the sender button, as captured in the audit." loading="lazy" style="object-position:50% 50%">
       <span class="gchip gchip--tr">Before · May 2026</span>
       <span class="gchips"><span class="gchip">14 findings</span><span class="gchip">5 categories</span><span class="gchip">1 blocker</span></span>
     </figure>
-    <dl class="ledger">
+    <dl class="ledger" data-pm-detail>
       <div><dt class="label">My role</dt><dd>Designer of the site. I made the fixes.</dd></div>
       <div><dt class="label">Input</dt><dd>Relayed user feedback: a written audit our COO compiled from users</dd></div>
       <div><dt class="label">Scope</dt><dd>Functionality, responsiveness, layout, consistency, content</dd></div>
       <div><dt class="label">Timeline</dt><dd>Audit in May 2026; live site checked again in October 2026</dd></div>
       <div><dt class="label">Evidence shown</dt><dd>The audit, its screenshots, and the live site</dd></div>
     </dl>
-    <div class="cs-links">
+    <div class="cs-links" data-pm-detail>
       <a class="arrow-link" href="https://www.olynationprime.com/" target="_blank" rel="noopener">Live site <span class="arr" aria-hidden="true">↗</span></a>
       <span class="label">The site has kept evolving since this round of fixes</span>
     </div>
   </section>
 
   <div class="wrap">
+    <section class="cs" data-step="Brief">
+      <div class="cs-label"><span class="label">Start here</span><h2>Brief</h2></div>
+      <div class="cs-body">
+        <div class="brief" data-reveal>
+          <div class="brief-card"><span class="label">In plain words</span><p class="brief-plain">OlyNation Prime is an independent distributor team I design for, and I fixed the steps where new members reported getting stuck on its website.</p></div>
+          <div class="brief-card"><span class="label">What this case shows</span><ul class="claims" data-pm-seq><li><span class="claim-k">Understands digital experiences</span><p>The problems were about people getting lost between setup steps.</p></li><li><span class="claim-k">Evidence into improvements</span><p>Each fix traces back to an audit finding you can check live.</p></li></ul></div>
+          <div class="brief-card brief-card--wide"><span class="label">Terms you'll hear</span><dl class="terms"><div><dt>Activation path</dt><dd>The seven setup steps for new members.</dd></div><div><dt>Audit</dt><dd>Our COO's list of user-reported problems.</dd></div><div><dt>Blocker</dt><dd>A problem that stops people finishing.</dd></div><div><dt>IPE videos</dt><dd>In-Person Experience videos for face-to-face walkthroughs.</dd></div></dl></div>
+        </div>
+      </div>
+    </section>
+
     <section class="cs" data-step="Context">
       <div class="cs-label"><span class="label">01</span><h2>Context</h2></div>
       <div class="cs-body">
-        <p data-reveal>OlyNation Prime's website walks new members through getting activated. In May 2026 it did that with a seven-step path: numbered tabs at the top, a page for each step, and Back and Next buttons between them.</p>
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">In May 2026, new members had to get through seven setup steps, each on its own page.</p></div></div>
+        <p data-reveal data-pm-detail>OlyNation Prime's website walks new members through getting activated. In May 2026 it did that with a seven-step path: numbered tabs at the top, a page for each step, and Back and Next buttons between them.</p>
         <figure class="fig" data-reveal>
-          <div class="two">
+          <div class="two" data-pm-seq>
             <div class="frame"><img src="img/audit-pills.webp" width="1200" height="100" alt="Seven numbered tabs, 1 to 7, with the first highlighted in gold." loading="lazy"></div>
             <div class="frame"><img src="img/audit-backnext.webp" width="1000" height="156" alt="A Back button beside a gold Next: Step 7 button." loading="lazy"></div>
           </div>
@@ -1575,9 +1742,10 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
     <section class="cs" data-step="Who did what">
       <div class="cs-label"><span class="label">03</span><h2>Who did what</h2></div>
       <div class="cs-body">
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">Users reported the problems, our COO collected them into an audit, and I made the fixes.</p></div></div>
         <figure class="fig" data-reveal>
           <div class="funnel-wrap">
-            <div class="funnel funnel--4">
+            <div class="funnel funnel--4" data-pm-seq>
               <div class="fstep"><span class="label">1</span><strong>Users</strong><span class="plat">Gave feedback on the path</span></div>
               <div class="fstep"><span class="label">2</span><strong>COO</strong><span class="plat">Compiled it into the audit</span></div>
               <div class="fstep fstep--cue"><span class="label">3</span><strong>Me</strong><span class="plat">Made the fixes</span></div>
@@ -1592,9 +1760,10 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
     <section class="cs" data-step="Evidence">
       <div class="cs-label"><span class="label">04</span><h2>Evidence</h2></div>
       <div class="cs-body">
-        <p data-reveal>The audit groups findings under five headings. Each comes with a screenshot of the issue and, for most, a concrete suggestion, such as "Next: Step 7" instead of "Next", or a Home button between Back and Next.</p>
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">The audit listed 14 problems, each with a screenshot, so I could see exactly what users saw.</p></div></div>
+        <p data-reveal data-pm-detail>The audit groups findings under five headings. Each comes with a screenshot of the issue and, for most, a concrete suggestion, such as "Next: Step 7" instead of "Next", or a Home button between Back and Next.</p>
         <figure class="fig" data-reveal>
-          <div class="gallery">
+          <div class="gallery" data-pm-seq>
             <a class="frame" href="img/audit-page-1.webp" target="_blank" rel="noopener" aria-label="Open audit page 1 full size" style="aspect-ratio:3/4"><img src="img/audit-page-1.webp" width="1100" height="1554" alt="Audit page 1: functionality findings and a responsiveness finding, with screenshots." loading="lazy" style="object-position:50% 0%"></a>
             <a class="frame" href="img/audit-page-2.webp" target="_blank" rel="noopener" aria-label="Open audit page 2 full size" style="aspect-ratio:3/4"><img src="img/audit-page-2.webp" width="1100" height="1336" alt="Audit page 2: layout and spacing findings, including no navigation bar and step numbers without context." loading="lazy" style="object-position:50% 0%"></a>
             <a class="frame" href="img/audit-page-3.webp" target="_blank" rel="noopener" aria-label="Open audit page 3 full size" style="aspect-ratio:3/4"><img src="img/audit-page-3.webp" width="1100" height="1336" alt="Audit page 3: design consistency and content findings, including duplicate IPE 1 entries and FAQ answers always visible." loading="lazy" style="object-position:50% 0%"></a>
@@ -1607,25 +1776,26 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
     <section class="cs" data-step="Patterns">
       <div class="cs-label"><span class="label">05</span><h2>Patterns</h2></div>
       <div class="cs-body">
-        <p data-reveal>Read together, the 14 findings fall into three patterns.</p>
-        <div class="pair pair--3" data-reveal>
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">Most problems came from people losing their place, and one button didn't work at all.</p></div></div>
+        <p data-reveal data-pm-detail>Read together, the 14 findings fall into three patterns.</p>
+        <div class="pair pair--3" data-pm-seq data-reveal>
           <div class="pcard">
             <span class="count">6</span>
             <h3>Wayfinding<small>Where am I, and how do I move?</small></h3>
-            <ul class="list"><li>No navigation bar</li><li>No way to jump to a step</li><li>Step numbers without context</li><li>Generic "Next" and "Back"</li><li>Logo didn't go home</li><li>No footer</li></ul>
+            <ul class="list" data-pm-detail><li>No navigation bar</li><li>No way to jump to a step</li><li>Step numbers without context</li><li>Generic "Next" and "Back"</li><li>Logo didn't go home</li><li>No footer</li></ul>
           </div>
           <div class="pcard">
             <span class="count" style="color:var(--cue-ink)">3</span>
             <h3>Broken or unclear actions<small>What happens when I click?</small></h3>
-            <ul class="list"><li>"Next: Step 7" didn't respond</li><li>Buttons and content labels looked the same</li><li>"Contact the sender" didn't say what happens next</li></ul>
+            <ul class="list" data-pm-detail><li>"Next: Step 7" didn't respond</li><li>Buttons and content labels looked the same</li><li>"Contact the sender" didn't say what happens next</li></ul>
           </div>
           <div class="pcard">
             <span class="count">5</span>
             <h3>Content and fit<small>Is it easy to take in?</small></h3>
-            <ul class="list"><li>FAQ answers formed a long wall</li><li>Two entries both labeled "IPE 1"</li><li>Too large at 100% zoom</li><li>Extra whitespace at the bottom</li><li>Logo layout</li></ul>
+            <ul class="list" data-pm-detail><li>FAQ answers formed a long wall</li><li>Two entries both labeled "IPE 1"</li><li>Too large at 100% zoom</li><li>Extra whitespace at the bottom</li><li>Logo layout</li></ul>
           </div>
         </div>
-        <div class="note" data-reveal>
+        <div class="note" data-reveal data-pm-detail>
           <span class="label">Takeaway</span>
           <p>Most of the friction was about orientation, not looks. The one hard blocker, a dead "Next: Step 7" button, stopped people just before the final step.</p>
         </div>
@@ -1635,40 +1805,41 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
     <section class="cs" data-step="Changes">
       <div class="cs-label"><span class="label">06</span><h2>Changes</h2></div>
       <div class="cs-body">
-        <p data-reveal>Each row pairs an audit finding with how it reads on the live site in October 2026.</p>
-        <div class="fixes">
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">Eight of my fixes are live today, including one for the broken button.</p></div></div>
+        <p data-reveal data-pm-detail>Each row pairs an audit finding with how it reads on the live site in October 2026.</p>
+        <div class="fixes" data-pm-seq>
           <div class="fix" data-reveal>
             <div class="fix-head"><span class="decision" style="border-color:var(--cue);color:var(--cue-ink)">Blocker</span><h3>"Next: Step 7" didn't respond, so users couldn't reach the final step</h3></div>
             <div class="fix-col"><span class="label">Before</span><div class="frame"><img src="img/audit-next7.webp" width="900" height="203" alt="The unresponsive Next: Step 7 button." loading="lazy"></div></div>
-            <div class="fix-col"><span class="label">Live site</span><div class="frame"><img src="img/live-steps.webp" width="470" height="158" alt="System Map Flow with a card labeled Step 1." loading="lazy"></div><p>The steps now sit on one scrolling page, so the path no longer depends on a step-to-step button.</p></div>
+            <div class="fix-col"><span class="label">Live site</span><div class="frame"><img src="img/live-steps.webp" width="470" height="158" alt="System Map Flow with a card labeled Step 1." loading="lazy"></div><p data-pm-detail>The steps now sit on one scrolling page, so the path no longer depends on a step-to-step button.</p></div>
           </div>
           <div class="fix" data-reveal>
             <div class="fix-head"><span class="decision decision--pass">Resolved</span><h3>Step numbers had no context</h3></div>
             <div class="fix-col"><span class="label">Before</span><div class="frame"><img src="img/audit-pills.webp" width="1200" height="100" alt="Bare numbered tabs 1 to 7." loading="lazy"></div></div>
-            <div class="fix-col"><span class="label">Live site</span><p>Each step is labeled "Step 1", "Step 2" and so on, next to what to do at that step.</p></div>
+            <div class="fix-col" data-pm-detail><span class="label">Live site</span><p data-pm-detail>Each step is labeled "Step 1", "Step 2" and so on, next to what to do at that step.</p></div>
           </div>
           <div class="fix" data-reveal>
             <div class="fix-head"><span class="decision decision--pass">Resolved</span><h3>No navigation bar</h3></div>
             <div class="fix-col"><span class="label">Before</span><div class="frame"><img src="img/audit-nonav.webp" width="1197" height="126" alt="Page header with only the OlyNation Prime logo and no menu." loading="lazy"></div></div>
-            <div class="fix-col"><span class="label">Live site</span><div class="frame"><img src="img/live-nav.webp" width="789" height="56" alt="Navigation bar with Home, Getting Started Right, Share the Opportunity and Enroll Now." loading="lazy"></div><p>A top menu: Home, Getting Started Right, Share the Opportunity, and an Enroll Now button.</p></div>
+            <div class="fix-col"><span class="label">Live site</span><div class="frame"><img src="img/live-nav.webp" width="789" height="56" alt="Navigation bar with Home, Getting Started Right, Share the Opportunity and Enroll Now." loading="lazy"></div><p data-pm-detail>A top menu: Home, Getting Started Right, Share the Opportunity, and an Enroll Now button.</p></div>
           </div>
           <div class="fix" data-reveal>
             <div class="fix-head"><span class="decision decision--pass">Resolved</span><h3>Two video entries were both labeled "IPE 1"</h3></div>
             <div class="fix-col"><span class="label">Before</span><div class="frame"><img src="img/audit-ipe.webp" width="698" height="248" alt="Two rows both labeled IPE 1 with Watch buttons." loading="lazy"></div></div>
-            <div class="fix-col"><span class="label">Live site</span><div class="frame"><img src="img/live-ipe.webp" width="460" height="107" alt="List reading IPE 1: P90 Series Walkthrough and IPE 2: Company Overview and Products." loading="lazy"></div><p>"IPE 1" and "IPE 2" now have distinct, descriptive titles.</p></div>
+            <div class="fix-col"><span class="label">Live site</span><div class="frame"><img src="img/live-ipe.webp" width="460" height="107" alt="List reading IPE 1: P90 Series Walkthrough and IPE 2: Company Overview and Products." loading="lazy"></div><p data-pm-detail>"IPE 1" and "IPE 2" now have distinct, descriptive titles.</p></div>
           </div>
           <div class="fix" data-reveal>
             <div class="fix-head"><span class="decision decision--pass">Resolved</span><h3>"Contact the sender" didn't say what happens next</h3></div>
-            <div class="fix-col"><span class="label">Before</span><p class="none">The gold "Contact the sender" button in the cover image above.</p></div>
-            <div class="fix-col"><span class="label">Live site</span><p>The generic button is gone. What remains is the plain instruction the section already had: go back to the person who shared the page and ask what to do next.</p></div>
+            <div class="fix-col" data-pm-detail><span class="label">Before</span><p class="none">The gold "Contact the sender" button in the cover image above.</p></div>
+            <div class="fix-col" data-pm-detail><span class="label">Live site</span><p>The generic button is gone. What remains is the plain instruction the section already had: go back to the person who shared the page and ask what to do next.</p></div>
           </div>
           <div class="fix" data-reveal>
             <div class="fix-head"><span class="decision decision--pass">Resolved</span><h3>Logo didn't go home · No footer · FAQ answers formed a long wall</h3></div>
-            <div class="fix-col"><span class="label">Before</span><p class="none">Described in the audit, pages 1 to 3.</p></div>
-            <div class="fix-col"><span class="label">Live site</span><p>The logo links to the home page, the page now ends with the site's notices, a language switch and its social handle, and the long FAQ is gone.</p></div>
+            <div class="fix-col" data-pm-detail><span class="label">Before</span><p class="none">Described in the audit, pages 1 to 3.</p></div>
+            <div class="fix-col" data-pm-detail><span class="label">Live site</span><p>The logo links to the home page, the page now ends with the site's notices, a language switch and its social handle, and the long FAQ is gone.</p></div>
           </div>
         </div>
-        <div class="unverified" data-reveal>
+        <div class="unverified" data-reveal data-pm-detail>
           <span class="label">Not verifiable from the live site</span>
           <ul class="list small">
             <li>Content size at 100% zoom, and the extra bottom whitespace.</li>
@@ -1683,14 +1854,16 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
     <section class="cs" data-step="Outcome">
       <div class="cs-label"><span class="label">07</span><h2>Outcome</h2></div>
       <div class="cs-body" data-reveal>
-        <p>No completion figures were kept for this round, so I can't put a number on the effect. What can be checked is the site itself: the eight findings visible on it today read as resolved, and the blocker is gone because the path no longer depends on a step-to-step button.</p>
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">We didn't track completion numbers, so the live site is the proof.</p></div></div>
+        <p data-pm-detail>No completion figures were kept for this round, so I can't put a number on the effect. What can be checked is the site itself: the eight findings visible on it today read as resolved, and the blocker is gone because the path no longer depends on a step-to-step button.</p>
       </div>
     </section>
 
     <section class="cs" data-step="Limits">
       <div class="cs-label"><span class="label">08</span><h2>Limits</h2></div>
       <div class="cs-body" data-reveal>
-        <ul class="list">
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">The feedback came second-hand, so I only claim what you can see on the live site.</p></div></div>
+        <ul class="list" data-pm-detail>
           <li>The feedback reached me through the COO, so I can't say how many users raised each issue.</li>
           <li>The site kept changing after these fixes, so today's version reflects more than this one round.</li>
           <li>Some findings can't be checked from the live site, and they're listed as such above.</li>
@@ -1698,14 +1871,15 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
       </div>
     </section>
 
-    <section class="cs" data-step="Next time">
-      <div class="cs-label"><span class="label">09</span><h2>Next time</h2></div>
+    <section class="cs" data-step="Learnings">
+      <div class="cs-label"><span class="label">09</span><h2>Learnings</h2></div>
       <div class="cs-body">
-        <ul class="changes" data-reveal>
-          <li><b>Count the voices</b>Tag each finding with how many users reported it.</li>
-          <li><b>Re-test the path</b>Walk 3 to 5 new members through activation after the fixes.</li>
-          <li><b>Measure completion</b>Track how many people reach the final step, before and after.</li>
-          <li><b>Date the evidence</b>Keep a dated before-and-after screenshot for every fix.</li>
+        <div class="tldr" data-reveal><span class="tldr-k">TL;DR</span><div class="tldr-b"><p class="tldr-t">The main lesson was that feedback is more useful when you count it and re-test the fix.</p></div></div>
+        <ul class="changes" data-pm-seq data-reveal>
+          <li><b>Count the voices</b><span data-pm-detail>Without knowing how many people raised each issue, I couldn't tell which problems were most common.</span></li>
+          <li><b>Re-test after fixing</b><span data-pm-detail>A fix is only confirmed once new members walk the path again.</span></li>
+          <li><b>Measure completion</b><span data-pm-detail>Without completion numbers, the live site was my only proof of improvement.</span></li>
+          <li><b>Date the evidence</b><span data-pm-detail>Dated before-and-after screenshots make every fix easy to check later.</span></li>
         </ul>
       </div>
     </section>
@@ -1724,6 +1898,20 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
     <a href="#top">Back to top ↑</a>
   </div>
 </footer>
+
+<div class="pm-top pm-ui" aria-hidden="true"><span></span></div>
+<div class="pm-intro pm-ui" aria-live="polite"><div class="pm-intro-in"><span class="pill dot pm-intro-k"></span><h2 class="pm-intro-h"></h2><p class="pm-intro-x"></p><span class="pm-intro-go">Press → or tap to continue</span></div></div>
+<div class="pm-hint pm-ui" aria-hidden="true">→ next point · PgDn next section · E details · Esc exit</div>
+<div class="pm-outline pm-ui" id="pm-outline" role="dialog" aria-label="Presentation outline"></div>
+<div class="pm-bar pm-ui" role="toolbar" aria-label="Presentation controls">
+  <button class="pm-btn" type="button" data-pm="prev" aria-label="Previous section"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3L5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <button class="pm-where" type="button" data-pm="outline" aria-haspopup="dialog" aria-controls="pm-outline" aria-expanded="false"><span class="pm-ch"></span><span class="pm-t"></span></button>
+  <span class="pm-n" aria-live="polite"></span>
+  <button class="pm-btn" type="button" data-pm="detail" aria-pressed="false"><span class="pm-btn-label">Details</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <button class="pm-btn" type="button" data-pm="next" aria-label="Next section"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <span class="pm-sep" aria-hidden="true"></span>
+  <button class="pm-btn" type="button" data-pm="exit" aria-label="Exit presentation"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+</div>
 
 <div class="progress" hidden aria-live="polite"></div>
 
@@ -1900,6 +2088,266 @@ a.frame:focus-visible { outline: 2px solid var(--cue); outline-offset: 3px; }
       } catch (e) { fallback(); }
     });
   }
+
+  /* ---------- Presentation mode ---------- */
+  var CASE_CH = { thesis: 'Case 1 · AI label experiment', 'prime-audit': 'Case 2 · Prime activation audit', olynation: 'Case 3 · OlyNation funnel' };
+  var STOPS = [];
+  (function buildStops() {
+    function add(v, el, ch, t) { if (el) STOPS.push({ v: v, el: el, ch: ch, t: t }); }
+    var g = function (id) { return document.getElementById(id); };
+    add('home', g('top'), 'Intro', 'Kristoffer Lopez');
+    add('home', g('intro'), 'Intro', 'Positioning');
+    add('home', g('work'), 'Selected work', 'Three cases');
+    var INTRO = {
+      thesis: { k: 'Case 1 of 3 · Academic experiment', h: 'Does an AI label change the grade?', x: 'This undergraduate thesis is where my research training shows most.' },
+      'prime-audit': { k: 'Case 2 of 3 · Feedback to design fixes', h: 'Where were new members getting stuck?', x: 'Next is a live website where users pointed out the problems.' },
+      olynation: { k: 'Case 3 of 3 · Analytics-informed design', h: 'Where were people dropping out, and why?', x: 'The last case is a sign-up funnel where data and feedback worked together.' }
+    };
+    function intro(v, ch, d, target) { STOPS.push({ v: v, el: null, intro: d, target: target, ch: ch, t: 'Introduction' }); }
+    ['thesis', 'prime-audit', 'olynation'].forEach(function (v) {
+      var m = document.querySelector('[data-view="' + v + '"]'); if (!m) return;
+      intro(v, CASE_CH[v], INTRO[v]);
+      add(v, m.querySelector('.cs-hero'), CASE_CH[v], 'Overview');
+      Array.prototype.forEach.call(m.querySelectorAll('section.cs[data-step]'), function (sec) { add(v, sec, CASE_CH[v], sec.getAttribute('data-step')); });
+    });
+    intro('home', 'Approach', { k: 'Back to the big picture', h: 'How I work', x: 'All three cases follow the same pattern: ask, gather evidence, fix, then check.' }, 'approach');
+    add('home', g('approach'), 'Approach', 'How I work');
+    add('home', g('more'), 'More work', 'Range');
+    add('home', g('about'), 'About', 'Background');
+    add('home', g('contact'), 'Close', "Let's talk");
+    STOPS.forEach(function (st, i) {
+      if (!st.el) { st.hasDetail = false; return; }
+      st.el.setAttribute('data-stop', i);
+      st.hasDetail = !!st.el.querySelector('[data-pm-detail]');
+      if (!st.hasDetail) return;
+      var host = st.el.querySelector('.cs-body') || st.el;
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'pm-more';
+      b.innerHTML = '<span>Show details</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      b.addEventListener('click', function () { toggleDetail(); });
+      host.appendChild(b);
+      st.more = b;
+    });
+  })();
+
+  var pmBar = document.querySelector('.pm-bar');
+  var pmTop = document.querySelector('.pm-top span');
+  var pmHint = document.querySelector('.pm-hint');
+  var pmOutline = document.getElementById('pm-outline');
+  var pmWhere = pmBar.querySelector('[data-pm="outline"]');
+  var pmDetailBtn = pmBar.querySelector('[data-pm="detail"]');
+  var presenting = false, cur = 0, bi = -1, pmInternal = false, pmTimer = null;
+
+  (function buildOutline() {
+    var last = null, group = null;
+    STOPS.forEach(function (st, i) {
+      if (st.ch !== last) {
+        group = document.createElement('div'); group.className = 'pm-oc';
+        var k = document.createElement('span'); k.className = 'pm-oc-k'; k.textContent = st.ch;
+        group.appendChild(k); pmOutline.appendChild(group); last = st.ch;
+      }
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'pm-oi'; b.setAttribute('data-i', i);
+      var n = document.createElement('span'); n.className = 'pm-on'; n.textContent = (i < 9 ? '0' : '') + (i + 1);
+      b.appendChild(n); b.appendChild(document.createTextNode(st.t));
+      b.addEventListener('click', function () { closeOutline(); go(i); });
+      group.appendChild(b);
+    });
+    var keys = document.createElement('p'); keys.className = 'pm-keys';
+    keys.textContent = '→ or Space: next point · ←: back · PgDn / PgUp: next or previous section · E: details · O: outline · Esc: exit · P: start';
+    pmOutline.appendChild(keys);
+  })();
+
+  function viewNow() { var v = views.filter(function (x) { return !x.hidden; })[0]; return v ? v.dataset.view : 'home'; }
+  function dimAround(el) {
+    Array.prototype.forEach.call(document.querySelectorAll('.pm-dim'), function (n) { n.classList.remove('pm-dim'); });
+    var node = el;
+    while (node && node !== document.body) {
+      var par = node.parentElement; if (!par) break;
+      Array.prototype.forEach.call(par.children, function (sib) {
+        if (sib === node || sib.classList.contains('pm-ui') || sib.classList.contains('nav-shell') || /^(SCRIPT|STYLE|svg)$/i.test(sib.tagName)) return;
+        sib.classList.add('pm-dim');
+      });
+      node = par;
+    }
+  }
+  function scrollToStop(el, toTop) {
+    var r = el.getBoundingClientRect();
+    var avail = window.innerHeight - 120;
+    var y = r.top + window.scrollY;
+    if (!toTop && r.height < avail) y -= Math.max(24, (avail - r.height) / 2);
+    else y -= 24;
+    window.scrollTo({ top: Math.max(0, y), behavior: reduce ? 'auto' : 'smooth' });
+  }
+  function updateBar() {
+    var st = STOPS[cur];
+    pmBar.querySelector('.pm-ch').textContent = st.ch;
+    pmBar.querySelector('.pm-t').textContent = st.t;
+    var nItems = seqItems().length;
+    pmBar.querySelector('.pm-n').textContent = (cur + 1) + ' / ' + STOPS.length + (bi >= 0 ? ' · ' + (bi + 1) + ' of ' + nItems : '');
+    pmBar.querySelector('[data-pm="prev"]').disabled = cur === 0 && bi < 0;
+    pmBar.querySelector('[data-pm="next"]').disabled = cur === STOPS.length - 1 && bi >= nItems - 1;
+    var open = !!st.el && st.el.classList.contains('pm-open');
+    pmDetailBtn.disabled = !st.hasDetail;
+    pmDetailBtn.setAttribute('aria-pressed', open ? 'true' : 'false');
+    pmDetailBtn.setAttribute('aria-label', open ? 'Hide details' : 'Show details');
+    if (st.more) st.more.querySelector('span').textContent = open ? 'Hide details' : 'Show details';
+    pmTop.style.width = ((cur + 1) / STOPS.length * 100) + '%';
+    Array.prototype.forEach.call(pmOutline.querySelectorAll('.pm-oi'), function (b) {
+      var on = +b.getAttribute('data-i') === cur;
+      b.classList.toggle('is-current', on);
+      if (on) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
+    });
+  }
+  var pmIntro = document.querySelector('.pm-intro');
+  function showIntro(st) {
+    pmIntro.querySelector('.pm-intro-k').textContent = st.intro.k;
+    pmIntro.querySelector('.pm-intro-h').textContent = st.intro.h;
+    pmIntro.querySelector('.pm-intro-x').textContent = st.intro.x;
+    pmIntro.classList.remove('is-on'); void pmIntro.offsetWidth; pmIntro.classList.add('is-on');
+  }
+  function hideIntro() { pmIntro.classList.remove('is-on'); }
+  pmIntro.addEventListener('click', function () { stepNext(); });
+  function activate(i) {
+    STOPS.forEach(function (st) { if (st.el) st.el.classList.remove('pm-active', 'pm-open'); });
+    clearBuild(); bi = -1;
+    cur = i;
+    var el = STOPS[i].el;
+    if (STOPS[i].intro) { showIntro(STOPS[i]); updateBar(); return; }
+    hideIntro();
+    el.classList.add('pm-active');
+    dimAround(el);
+    updateBar();
+    requestAnimationFrame(function () { scrollToStop(el); });
+  }
+  function seqItems() {
+    var st = STOPS[cur], out = [];
+    if (!st || !st.el) return out;
+    Array.prototype.forEach.call(st.el.querySelectorAll('[data-pm-seq]'), function (c) {
+      var sel = c.getAttribute('data-pm-seq');
+      Array.prototype.forEach.call(c.children, function (k) {
+        if (k.getAttribute('aria-hidden') === 'true') return;
+        if (sel && !k.matches(sel)) return;
+        if (!k.getClientRects().length) return;
+        out.push(k);
+      });
+    });
+    return out;
+  }
+  function clearBuild() {
+    Array.prototype.forEach.call(document.querySelectorAll('.pm-now, .pm-later, .pm-done'), function (n) { n.classList.remove('pm-now', 'pm-later', 'pm-done'); });
+  }
+  function applyBuild(scroll) {
+    clearBuild();
+    var its = seqItems();
+    if (bi > its.length - 1) bi = its.length - 1;
+    if (bi >= 0) its.forEach(function (n, j) { n.classList.add(j === bi ? 'pm-now' : (j < bi ? 'pm-done' : 'pm-later')); });
+    updateBar();
+    if (scroll && bi >= 0) {
+      var r = its[bi].getBoundingClientRect();
+      if (r.top < 40 || r.bottom > window.innerHeight - 110) its[bi].scrollIntoView({ block: 'center', behavior: reduce ? 'auto' : 'smooth' });
+    }
+  }
+  function stepNext() {
+    if (bi < seqItems().length - 1) { bi++; applyBuild(true); }
+    else go(cur + 1);
+  }
+  function stepPrev() {
+    if (bi >= 0) { bi--; applyBuild(true); if (bi < 0) scrollToStop(STOPS[cur].el); }
+    else go(cur - 1);
+  }
+  function go(i) {
+    if (i < 0 || i >= STOPS.length) return;
+    var st = STOPS[i];
+    if (st.v !== viewNow()) {
+      pmInternal = true;
+      location.hash = st.v === 'home' ? ((st.el && st.el.id) || st.target || 'top') : st.v;
+      clearTimeout(pmTimer);
+      pmTimer = setTimeout(function () { pmInternal = false; activate(i); }, 140);
+    } else activate(i);
+  }
+  function toggleDetail(force) {
+    var st = STOPS[cur]; if (!st.hasDetail) return;
+    var open = typeof force === 'boolean' ? force : !st.el.classList.contains('pm-open');
+    st.el.classList.toggle('pm-open', open);
+    applyBuild(false);
+    requestAnimationFrame(function () { scrollToStop(st.el, open && st.el.getBoundingClientRect().height > window.innerHeight - 120); });
+  }
+  function openOutline() { pmOutline.classList.add('is-open'); pmWhere.setAttribute('aria-expanded', 'true'); var c = pmOutline.querySelector('.is-current'); if (c) { c.scrollIntoView({ block: 'center' }); c.focus({ preventScroll: true }); } }
+  function closeOutline() { pmOutline.classList.remove('is-open'); pmWhere.setAttribute('aria-expanded', 'false'); }
+  function startPresenting() {
+    if (presenting) return;
+    var v = viewNow(), best = -1, bestD = Infinity;
+    STOPS.forEach(function (st, i) {
+      if (st.v !== v || !st.el) return;
+      var r = st.el.getBoundingClientRect();
+      if (r.bottom < 80 || r.top > window.innerHeight) return;
+      var d = Math.abs(r.top - window.innerHeight * 0.2);
+      if (d < bestD) { bestD = d; best = i; }
+    });
+    presenting = true;
+    document.body.classList.add('is-presenting');
+    activate(best >= 0 ? best : 0);
+    pmHint.classList.remove('is-on'); void pmHint.offsetWidth; pmHint.classList.add('is-on');
+  }
+  function stopPresenting() {
+    if (!presenting) return;
+    presenting = false;
+    closeOutline();
+    document.body.classList.remove('is-presenting');
+    STOPS.forEach(function (st) { if (st.el) st.el.classList.remove('pm-active', 'pm-open'); });
+    clearBuild(); bi = -1; hideIntro();
+    Array.prototype.forEach.call(document.querySelectorAll('.pm-dim'), function (n) { n.classList.remove('pm-dim'); });
+    onScroll();
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-pm-start]'), function (b) { b.addEventListener('click', startPresenting); });
+  pmBar.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-pm]'); if (!b) return;
+    var a = b.getAttribute('data-pm');
+    if (a === 'prev') stepPrev();
+    else if (a === 'next') stepNext();
+    else if (a === 'detail') toggleDetail();
+    else if (a === 'outline') { if (pmOutline.classList.contains('is-open')) closeOutline(); else openOutline(); }
+    else if (a === 'exit') stopPresenting();
+  });
+  document.addEventListener('click', function (e) {
+    if (!presenting || e.target.closest('.pm-ui')) return;
+    if (pmOutline.classList.contains('is-open')) closeOutline();
+    var stopEl = e.target.closest('[data-stop]');
+    if (stopEl && !stopEl.classList.contains('pm-active')) { e.preventDefault(); e.stopPropagation(); go(+stopEl.getAttribute('data-stop')); return; }
+    if (stopEl && !e.target.closest('a, button')) {
+      var its = seqItems();
+      for (var q = 0; q < its.length; q++) if (its[q].contains(e.target)) { bi = q; applyBuild(false); break; }
+    }
+  }, true);
+  window.addEventListener('hashchange', function () {
+    if (!presenting || pmInternal) return;
+    var h = decodeURIComponent(location.hash.slice(1)), idx = -1;
+    if (CASES[h]) { for (var i = 0; i < STOPS.length; i++) if (STOPS[i].v === h) { idx = i; break; } }
+    else {
+      var target = document.getElementById(h || 'top');
+      for (var j = 0; j < STOPS.length && target; j++) if (STOPS[j].el && (STOPS[j].el === target || STOPS[j].el.contains(target))) { idx = j; break; }
+    }
+    if (idx >= 0) { clearTimeout(pmTimer); pmTimer = setTimeout(function () { activate(idx); }, 140); }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var k = e.key, onControl = e.target.closest && e.target.closest('button, a, input, textarea, select');
+    if (!presenting) {
+      if ((k === 'p' || k === 'P') && !onControl) { e.preventDefault(); startPresenting(); }
+      return;
+    }
+    if (k === 'Escape') { e.preventDefault(); if (pmOutline.classList.contains('is-open')) closeOutline(); else stopPresenting(); return; }
+    if ((k === ' ' || k === 'Enter') && onControl) return;
+    if (k === 'ArrowRight' || k === ' ') { e.preventDefault(); stepNext(); }
+    else if (k === 'ArrowLeft') { e.preventDefault(); stepPrev(); }
+    else if (k === 'PageDown') { e.preventDefault(); go(cur + 1); }
+    else if (k === 'PageUp') { e.preventDefault(); go(cur - 1); }
+    else if (k === 'e' || k === 'E' || k === 'Enter') { e.preventDefault(); toggleDetail(); }
+    else if (k === 'o' || k === 'O') { e.preventDefault(); if (pmOutline.classList.contains('is-open')) closeOutline(); else openOutline(); }
+    else if (k === 'Home') { e.preventDefault(); go(0); }
+    else if (k === 'End') { e.preventDefault(); go(STOPS.length - 1); }
+  });
 })();
 </script>
 </body>
